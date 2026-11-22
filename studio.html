@@ -206,6 +206,14 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
         <div class="row" data-for="curved"><label for="radius">Curve radius</label><div class="field"><input id="radius" type="number" step="1" min="30" value="80"><span>mm</span></div></div>
         <div class="row"><label for="frame">Border width</label><div class="field"><input id="frame" type="number" step="0.5" min="0" value="3"><span>mm</span></div></div>
       </fieldset>
+      <fieldset data-for="flat curved">
+        <legend>Scaffold</legend>
+        <label class="check"><input id="scaffold" type="checkbox"> Add snap-off scaffold fins</label>
+        <p class="hint">Thin fins on both sides at the left and right borders hold a tall panel steady while it prints. They only touch the border, never the picture. Snap them off afterwards.</p>
+        <div class="row" data-scaf><label for="scaffoldH">Fin height</label><div class="field"><input id="scaffoldH" type="number" step="1" min="5" value="50"><span>mm</span></div></div>
+        <div class="row" data-scaf><label for="scaffoldD">Fin reach</label><div class="field"><input id="scaffoldD" type="number" step="1" min="5" value="20"><span>mm</span></div></div>
+        <div class="row" data-scaf><label for="scaffoldW">Fin thickness</label><div class="field"><input id="scaffoldW" type="number" step="0.1" min="0.4" value="1"><span>mm</span></div></div>
+      </fieldset>
       <fieldset data-for="cylinder">
         <legend>Cylinder size</legend>
         <div class="row"><label for="cylDiam">Diameter</label><div class="field"><input id="cylDiam" type="number" step="1" min="30" value="70"><span>mm</span></div></div>
@@ -284,11 +292,11 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 
 const $ = (id) => document.getElementById(id);
-const NUM = ['sphereD', 'cylD', 'cylT', 'cylH', 'ledgeD', 'bottomHole', 'width', 'height', 'radius', 'frame', 'cylDiam', 'cylHeight', 'rim', 'minT', 'maxT', 'frameT'];
+const NUM = ['sphereD', 'cylD', 'cylT', 'cylH', 'ledgeD', 'bottomHole', 'width', 'height', 'radius', 'frame', 'cylDiam', 'cylHeight', 'rim', 'minT', 'maxT', 'frameT', 'scaffoldH', 'scaffoldD', 'scaffoldW'];
 const KIND = { bauble: 'Bauble', flat: 'Flat panel', curved: 'Curved panel', cylinder: 'Cylinder' };
 const S = {                       // everything the user sets, kept in this browser between visits
   name: 'My lithophane', shape: 'bauble', curve: 'natural', res: 0.3,
-  bright: 0, contrast: 0, invert: false, asPrint: true, zoom: 1, cx: 0.5, cy: 0.5, light: 80, view: 'lit',
+  bright: 0, contrast: 0, invert: false, scaffold: false, asPrint: true, zoom: 1, cx: 0.5, cy: 0.5, light: 80, view: 'lit',
 };
 NUM.forEach((k) => { S[k] = parseFloat($(k).defaultValue); });
 let img = null, imgW = 0, imgH = 0, step = 'image';
@@ -305,13 +313,14 @@ function save() { try { localStorage.setItem('litho-studio', JSON.stringify(S));
 function toForm() {
   NUM.forEach((k) => { $(k).value = S[k]; });
   $('shape').value = S.shape; $('curve').value = S.curve; $('res').value = String(S.res);
-  $('bright').value = S.bright; $('contrast').value = S.contrast; $('invert').checked = S.invert; $('asprint').checked = S.asPrint;
+  $('bright').value = S.bright; $('contrast').value = S.contrast; $('invert').checked = S.invert; $('scaffold').checked = S.scaffold; $('asprint').checked = S.asPrint;
   $('zoom').value = S.zoom; $('light').value = S.light; $('proj-name').value = S.name;
 }
 function geo() {                  // the numbers geometry.js expects for the current shape
   const p = { minT: S.minT, maxT: Math.max(S.maxT, S.minT + 0.2), curve: S.curve, frameT: Math.max(S.frameT, S.minT), frame: S.frame,
     rim: S.rim, width: S.width, height: S.height, radius: S.radius, cylDiam: S.cylDiam,
-    sphereD: S.sphereD, cylD: S.cylD, cylT: S.cylT, ledgeD: S.ledgeD, cylH: S.cylH, bottomHole: S.bottomHole };
+    sphereD: S.sphereD, cylD: S.cylD, cylT: S.cylT, ledgeD: S.ledgeD, cylH: S.cylH, bottomHole: S.bottomHole,
+    scaffold: S.scaffold && (S.shape === 'flat' || S.shape === 'curved'), scaffoldH: S.scaffoldH, scaffoldD: S.scaffoldD, scaffoldW: S.scaffoldW };
   if (S.shape === 'cylinder') p.height = S.cylHeight;
   return p;
 }
@@ -408,6 +417,7 @@ function updateShapeInfo() {
   const a = area(), p = geo();
   $('proj-kind').textContent = KIND[S.shape] + (S.shape === 'bauble' ? ` · ${S.sphereD} mm` : '');
   document.querySelectorAll('[data-for]').forEach((el) => { el.hidden = !el.dataset.for.split(' ').includes(S.shape); });
+  document.querySelectorAll('[data-scaf]').forEach((el) => { el.hidden = !S.scaffold; });
   const best = Math.round(a.V / 0.1 / 100) * 100, bestW = Math.round(best * a.U / a.V);
   $('img-title').textContent = S.shape === 'bauble' ? 'Wrap round the bauble' : S.shape === 'cylinder' ? 'Wrap round the cylinder' : 'Your image';
   $('img-size').textContent = `Ideal image ${bestW} × ${best} px` + (a.degTall ? ` · 360° × ${a.degTall.toFixed(1)}°` : '');
@@ -423,6 +433,10 @@ function updateShapeInfo() {
   if (S.shape === 'bauble' && S.cylD >= S.sphereD * 0.8) w.push('The neck is too wide for this sphere.');
   if (S.shape === 'bauble' && S.ledgeD <= S.cylD) w.push('The cap ledge must be wider than the neck, or the cap has nothing to clip under.');
   if (S.shape === 'curved' && S.width > Math.PI * S.radius) w.push('This panel is wider than half a circle at this radius. Make the radius bigger, or use Cylinder.');
+  if (S.scaffold && (S.shape === 'flat' || S.shape === 'curved')) {
+    if (S.frame < S.scaffoldW + 1) w.push('The border is too narrow for the scaffold fins: they would touch the picture. Make the border at least ' + (S.scaffoldW + 1) + ' mm.');
+    if (S.scaffoldH > S.height) w.push('The fins are taller than the panel; they will stop at the top.');
+  }
   if (tris > 6e6) w.push('That much detail makes a very large file. Choose a coarser detail if your slicer struggles.');
   $('shape-warn').replaceChildren(...w.map((t) => { const p2 = document.createElement('p'); p2.className = 'warn'; p2.textContent = t; return p2; }));
   // image detail hint: how many image pixels per printed mm
@@ -504,7 +518,16 @@ const SHEET = {
   curved: [['Orientation', 'Standing up, as saved'], ['Supports', 'None'], ['Adhesion', '5 mm brim']],
   cylinder: [['Orientation', 'Standing up, as saved'], ['Supports', 'None'], ['Adhesion', 'Brim optional']],
 };
-function sheetRows() { return [...SHEET.common, ...SHEET[S.shape]]; }
+function sheetRows() {
+  const rows = [...SHEET.common, ...SHEET[S.shape]];
+  if (S.scaffold && (S.shape === 'flat' || S.shape === 'curved')) {
+    const i = rows.findIndex(([k]) => k === 'Adhesion');
+    rows[i] = ['Adhesion', '3 mm brim; the scaffold does the bracing'];
+    rows.push(['Supports', 'None, the scaffold fins hold it up'], ['After printing', 'Snap off the four fins, then sand the border edge smooth']);
+    return rows.filter(([k, v], j) => !(k === 'Supports' && v === 'None'));
+  }
+  return rows;
+}
 function slug(s) { return (s || 'lithophane').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'lithophane'; }
 function fileName() { const size = S.shape === 'bauble' ? `${S.sphereD}mm` : S.shape === 'cylinder' ? `${S.cylDiam}x${S.cylHeight}mm` : `${S.width}x${S.height}mm`; return `${slug(S.name)}-${S.shape}-${size}`; }
 async function preparePrint() {
@@ -600,6 +623,7 @@ $('curve').addEventListener('change', () => { S.curve = $('curve').value; drawCr
 $('res').addEventListener('change', () => { S.res = +$('res').value; updateShapeInfo(); markDirty(); save(); });
 ['bright', 'contrast'].forEach((k) => $(k).addEventListener('input', () => { S[k] = +$(k).value; syncOut(); drawCrop(); markDirty(); save(); }));
 $('zoom').addEventListener('input', () => { S.zoom = +$('zoom').value; syncOut(); drawCrop(); updateShapeInfo(); markDirty(); save(); });
+$('scaffold').addEventListener('change', () => { S.scaffold = $('scaffold').checked; updateShapeInfo(); markDirty(); save(); });
 $('invert').addEventListener('change', () => { S.invert = $('invert').checked; drawCrop(); markDirty(); save(); });
 $('asprint').addEventListener('change', () => { S.asPrint = $('asprint').checked; drawCrop(); save(); });
 $('proj-name').addEventListener('input', () => { S.name = $('proj-name').value; save(); });

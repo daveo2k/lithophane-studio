@@ -10,7 +10,7 @@ The studio bundles two companion tools:
 ## Using it
 
 1. **Image**: drop a photo in, drag and zoom it to frame it, and adjust brightness and contrast. The preview shows how the print will look when it's lit.
-2. **Shape**: pick a shape and its size, the thinnest and thickest walls, and the detail level. The 3D preview has a *Lit from inside* view and a *Daylight* view.
+2. **Shape**: pick a shape and its size (flat and curved panels can add snap-off scaffold fins to brace them while printing), the thinnest and thickest walls, and the detail level. The 3D preview has a *Lit from inside* view and a *Daylight* view.
 3. **Print**: the studio builds the full-detail model, checks it, and gives you the STL and a print sheet for that shape.
 
 Settings are kept in your browser between visits.

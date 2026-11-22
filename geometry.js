@@ -138,7 +138,54 @@ const Litho = (() => {
       rings.push(ring); ringT.push(rt);
     }
     const m = assemble(rings, ringT, cols, { wrapU: false, loop: true });
-    return m;
+    return p.scaffold ? withScaffold(shape, p, m) : m;
+  }
+
+  // Scaffold: thin snap-off fins that brace a standing panel while it prints. One fin on each side of the panel at
+  // the left and right borders, so they only ever touch the frame, never the picture. Each fin is a right triangle
+  // standing on the bed: `scaffoldD` out from the panel, `scaffoldH` up it, `scaffoldW` thick. They overlap the
+  // frame by 0.2 mm so the slicer joins them on; the thin joint snaps off after printing.
+  function scaffoldFins(shape, p) {
+    const W = p.width, H = p.height, R = p.radius;
+    const h = Math.min(H, Math.max(5, p.scaffoldH)), fw = Math.max(0.4, p.scaffoldW), ov = 0.2;
+    const fins = [];
+    for (const uc of [p.frame / 2, W - p.frame / 2]) {
+      const x = uc - W / 2;
+      // base: the smooth face at this column; n: the way thickness grows (towards the relief); e: across the panel
+      let base, n, e;
+      if (shape === 'flat') { base = [x, 0, 0]; n = [0, 1, 0]; e = [1, 0, 0]; }
+      else { const a = x / R; base = [R * Math.sin(a), R - R * Math.cos(a), 0]; n = [Math.sin(a), -Math.cos(a), 0]; e = [Math.cos(a), Math.sin(a), 0]; }
+      for (const dir of [1, -1]) {                   // +1: fin on the relief side, -1: on the smooth side
+        const start = dir === 1 ? p.frameT - ov : ov;
+        let d = p.scaffoldD;
+        if (shape === 'curved' && dir === -1) d = Math.min(d, R * 0.8);   // keep it inside the arc
+        const o = [base[0] + n[0] * start, base[1] + n[1] * start, 0];
+        const tri = [[0, 0], [d + ov, 0], [0, h]];
+        const v = [];
+        for (const sgn of [-1, 1]) for (const [sd, z] of tri) {
+          v.push(o[0] + dir * n[0] * sd + sgn * fw / 2 * e[0], o[1] + dir * n[1] * sd + sgn * fw / 2 * e[1], z);
+        }
+        fins.push(v);
+      }
+    }
+    return fins;
+  }
+  function withScaffold(shape, p, m) {
+    const fins = scaffoldFins(shape, p);
+    const nv0 = m.pos.length / 3, pos = new Float32Array(m.pos.length + fins.length * 18), thick = new Float32Array(nv0 + fins.length * 6);
+    pos.set(m.pos); thick.set(m.thick);
+    const idx = Array.from(m.idx);
+    fins.forEach((v, f) => {
+      const b = nv0 + f * 6;
+      pos.set(v, b * 3); thick.fill(p.frameT, b, b + 6);
+      // vertices 0-2: one face of the triangle, 3-5: the other
+      const t = [0, 1, 2, 5, 4, 3, 0, 3, 4, 0, 4, 1, 1, 4, 5, 1, 5, 2, 2, 5, 3, 2, 3, 0];
+      const fi = new Uint32Array(t.map((k) => b + k));
+      const sub = new Float32Array(18); sub.set(v);
+      if (signedVolume(sub, new Uint32Array(t)) < 0) for (let i = 0; i < fi.length; i += 3) { const q = fi[i + 1]; fi[i + 1] = fi[i + 2]; fi[i + 2] = q; }
+      idx.push(...fi);
+    });
+    return { pos, idx: new Uint32Array(idx), thick };
   }
 
   function cylinder(p, T0, cols0, rows0) {
