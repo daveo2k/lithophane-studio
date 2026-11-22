@@ -131,17 +131,17 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
     <a class="home" href="./" aria-label="Lithophane Studio home"><img src="brand/badgertech-mark-small.svg" alt="" width="32" height="32"></a>
     <div class="proj"><span id="proj-kind">Bauble</span><input id="proj-name" value="My lithophane" aria-label="Project name"></div>
     <nav class="steps" aria-label="Steps">
-      <button type="button" data-step="image" aria-current="step"><b>1</b>Image</button>
-      <button type="button" data-step="shape"><b>2</b>Shape</button>
+      <button type="button" data-step="shape" aria-current="step"><b>1</b>Shape</button>
+      <button type="button" data-step="image"><b>2</b>Image</button>
       <button type="button" data-step="print"><b>3</b>Print</button>
     </nav>
-    <button type="button" class="btn" id="next">Next: shape</button>
+    <button type="button" class="btn" id="next">Next: image</button>
   </div>
 </header>
 
 <main>
-  <!-- 1 · Image -->
-  <section id="step-image" class="cols" aria-label="Image">
+  <!-- 2 · Image -->
+  <section id="step-image" class="cols" aria-label="Image" hidden>
     <div class="wide">
       <div class="card">
         <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline">
@@ -150,9 +150,9 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
         </div>
         <div class="cropbox" id="cropbox">
           <canvas id="crop" width="1200" height="530" aria-label="The part of your image that will be printed. Drag to move it."></canvas>
-          <div class="empty" id="crop-empty"><div><strong style="color:var(--fg)">Add a photo to start</strong><br>Drop it on the box on the right, or choose a file.</div></div>
+          <div class="empty" id="crop-empty"><div><strong style="color:var(--fg)">Add your photo</strong><br>Drop it on the box on the right, or choose a file.</div></div>
         </div>
-        <p class="hint" id="crop-hint">Drag the picture to move it. Use Zoom to fill the shape. What you see here is exactly what gets printed.</p>
+        <p class="hint" id="crop-hint">The frame matches the shape and size you chose in step 1. Drag the picture to move it. Use Zoom to fill the shape. What you see here is exactly what gets printed.</p>
       </div>
     </div>
     <aside class="rail" aria-label="Image settings">
@@ -178,8 +178,8 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
     </aside>
   </section>
 
-  <!-- 2 · Shape -->
-  <section id="step-shape" class="cols" aria-label="Shape" hidden>
+  <!-- 1 · Shape -->
+  <section id="step-shape" class="cols" aria-label="Shape">
     <aside class="rail" aria-label="Shape settings">
       <label for="shape" style="display:flex;flex-direction:column;gap:6px">Shape
         <select id="shape" class="full">
@@ -231,7 +231,7 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
       <fieldset>
         <legend>Detail</legend>
         <div class="row"><label for="res">Detail</label><div class="field"><select id="res"><option value="0.2">Finest, 0.2 mm</option><option value="0.25">Fine, 0.25 mm</option><option value="0.3" selected>Good, 0.3 mm</option><option value="0.4">Quick, 0.4 mm</option><option value="0.5">Draft, 0.5 mm</option></select></div></div>
-        <dl class="stats"><dt>Image size used</dt><dd id="est-px">–</dd><dt>Triangles</dt><dd id="est-tris">–</dd><dt>STL file</dt><dd id="est-mb">–</dd></dl>
+        <dl class="stats"><dt>Best photo size</dt><dd id="est-best">–</dd><dt>Image size used</dt><dd id="est-px">–</dd><dt>Triangles</dt><dd id="est-tris">–</dd><dt>STL file</dt><dd id="est-mb">–</dd></dl>
         <p class="hint">0.3 mm suits a 0.4 mm nozzle. The preview uses a lighter version; the download uses this detail.</p>
       </fieldset>
       <div id="shape-warn"></div>
@@ -299,7 +299,7 @@ const S = {                       // everything the user sets, kept in this brow
   bright: 0, contrast: 0, invert: false, scaffold: false, asPrint: true, zoom: 1, cx: 0.5, cy: 0.5, light: 80, view: 'lit',
 };
 NUM.forEach((k) => { S[k] = parseFloat($(k).defaultValue); });
-let img = null, imgW = 0, imgH = 0, step = 'image';
+let img = null, imgW = 0, imgH = 0, step = 'shape';
 
 // ---------- settings in and out ----------
 function load() {
@@ -425,6 +425,7 @@ function updateShapeInfo() {
   $('wrap-link').href = `wrap/?studio=1#sphereD=${S.sphereD}&cylD=${S.cylD}`;
   const g = grid(S.res), tris = 4 * g.cols * g.rows;
   $('est-px').textContent = `${g.cols} × ${g.rows} px`;
+  $('est-best').textContent = `${bestW} × ${best} px or more`;
   $('est-tris').textContent = (tris / 1e6).toFixed(2) + ' million';
   $('est-mb').textContent = `about ${Math.round((84 + 50 * tris) / 1e6)} MB`;
   const w = [];
@@ -602,7 +603,7 @@ $('download').addEventListener('click', async () => {
 });
 
 // ---------- steps ----------
-const NEXT = { image: ['shape', 'Next: shape'], shape: ['print', 'Next: print'], print: [null, 'Start again'] };
+const NEXT = { shape: ['image', 'Next: image'], image: ['print', 'Next: print'], print: [null, 'Start again'] };
 function go(s) {
   step = s;
   document.querySelectorAll('.steps button').forEach((b) => { if (b.dataset.step === s) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
@@ -614,7 +615,7 @@ function go(s) {
   window.scrollTo(0, 0);
 }
 document.querySelectorAll('.steps button').forEach((b) => b.addEventListener('click', () => go(b.dataset.step)));
-$('next').addEventListener('click', () => { const n = NEXT[step][0]; if (n) go(n); else go('image'); });
+$('next').addEventListener('click', () => { const n = NEXT[step][0]; if (n) go(n); else go('shape'); });
 
 // ---------- form events ----------
 NUM.forEach((k) => $(k).addEventListener('input', () => { const v = parseFloat($(k).value); if (isFinite(v)) { S[k] = v; updateShapeInfo(); drawCrop(); markDirty(); save(); } }));
@@ -645,13 +646,16 @@ function takeHandoff() {
 }
 
 load(); toForm(); syncOut(); updateShapeInfo(); setLighting(); drawCrop();
-if (new URLSearchParams(location.hash.slice(1)).get('from') === 'wrap') {
+const fromWrap = new URLSearchParams(location.hash.slice(1)).get('from') === 'wrap';
+go(fromWrap ? 'image' : 'shape');   // a wrap arrives with its sizes, so it goes straight to framing
+if (fromWrap) {
   takeHandoff().then((h) => {
     if (!h || !h.blob) return;
     S.shape = 'bauble'; if (h.sphereD) S.sphereD = h.sphereD; if (h.cylD) S.cylD = h.cylD;
     toForm(); updateShapeInfo(); save();
     const im = new Image(); im.onload = () => setImage(im); im.src = URL.createObjectURL(h.blob);
     history.replaceState(null, '', location.pathname + '?shape=bauble');
+    go('image');
   });
 }
 </script>
