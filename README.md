@@ -17,48 +17,32 @@ Settings are kept in your browser between visits.
 
 ## Hosting it on Cloudflare Pages
 
-`build.sh` builds the whole site into `dist/`. That includes `/wrap/` and `/cap/`, cloned from their own repositories, exactly as the Docker image does. Cloudflare Pages runs it on every push to `main`.
+The site is published by uploading it by hand, so nothing goes live until you choose. Cloudflare Pages has no FTP, but its **Direct Upload** does the same job: you drag a folder or zip into the dashboard.
 
-### First-time setup
+### Build the files
 
-1. In the Cloudflare dashboard, go to **Workers & Pages → Create → Pages → Import an existing Git repository**. If it offers a Worker first, choose the **Pages** tab.
-2. Connect GitHub and pick `lithophane-studio`. You can give Cloudflare access to only that repository.
-3. Use these build settings:
+Run `sh build.sh`. On Windows, use Git Bash. It puts the whole site into `dist/`, including `/wrap/` and `/cap/`, which it clones from their own repositories.
 
-   | Setting | Value |
-   |---|---|
-   | Production branch | `main` |
-   | Framework preset | None |
-   | Build command | `sh build.sh` |
-   | Build output directory | `dist` |
+To check the result before uploading, run `npx serve dist` and open the address it prints.
 
-4. Select **Save and Deploy**. The site goes live at `https://<project>.pages.dev`.
+### First upload
+
+1. In the Cloudflare dashboard, go to **Workers & Pages → Create → Pages → Use direct upload** (it may say **Upload assets**). If it offers a Worker first, choose the **Pages** tab.
+2. Name the project. The name becomes `https://<name>.pages.dev`.
+3. Drag in the **contents** of `dist/`, or a zip of them. `index.html` must be at the top level, not inside a folder.
+4. Select **Deploy site**.
 5. To use your own domain, open the project's **Custom domains** tab and add one, for example `lithophane.example.com`. The domain is already on Cloudflare, so it creates the DNS record and HTTPS certificate for you.
 
-### Keeping it up to date
+### Updating it
 
-- **Changes to this repository** deploy by themselves: every push to `main` rebuilds the site. Pushes to other branches get their own preview URL.
-- **Changes to the photo wrap or end cap tools** need a rebuild of this site. To do that automatically:
-  1. In the Pages project, go to **Settings → Builds → Deploy hooks**, add a hook for the `main` branch, and copy its URL.
-  2. In **both** `bauble-image-tool` and `bauble-cap`, add a repository secret called `CF_PAGES_DEPLOY_HOOK` (**Settings → Secrets and variables → Actions**) with that URL.
-  3. In both repositories, add `.github/workflows/rebuild-lithophane-studio.yml`:
+1. Run `sh build.sh` again.
+2. In the project, select **Create deployment** (or **Upload**), drag in the new `dist/` contents, and deploy to **Production**.
 
-     ```yaml
-     name: Rebuild Lithophane Studio
-     on:
-       push:
-         branches: [main]
-       workflow_dispatch:
-     jobs:
-       rebuild:
-         runs-on: ubuntu-latest
-         steps:
-           - run: curl -fsS -X POST "${{ secrets.CF_PAGES_DEPLOY_HOOK }}"
-     ```
+Every upload is kept. If a new version has a problem, open the project's **Deployments** list, pick the last good one, and select **Rollback to this deployment**.
 
-  Treat the deploy hook URL as a password: anyone who has it can start builds.
+You can also upload from the command line, with no dashboard: `npx wrangler pages deploy dist --project-name <name>`. The first run asks you to log in to Cloudflare.
 
-To check a build on your own computer, run `sh build.sh`, then `npx serve dist`.
+A project created by upload stays an upload project. It can't later be connected to GitHub; that needs a new project.
 
 ## Running it with Docker or Portainer
 
@@ -80,7 +64,7 @@ Each build clones the latest `main` of bauble-image-tool and bauble-cap into `/w
 | `studio.html` | The studio: image, shape and print steps, plus the three.js preview |
 | `geometry.js` | Builds the lithophane meshes (closed, watertight surfaces with no boolean operations) and writes the STL files |
 | `brand/`, `site.webmanifest` | BadgerTech logo and icons |
-| `build.sh`, `_headers` | Static build for Cloudflare Pages |
+| `build.sh`, `_headers` | Builds the static site into `dist/` for Cloudflare Pages |
 | `Dockerfile`, `nginx.conf.template`, `docker-compose.yml` | Container setup |
 
 ## Not in this version
