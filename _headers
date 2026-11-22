@@ -1,0 +1,4 @@
+# Cloudflare Pages response headers. Matches the nginx setup: browsers always
+# check for a newer copy, so a new deploy shows up straight away.
+/*
+  Cache-Control: no-cache
