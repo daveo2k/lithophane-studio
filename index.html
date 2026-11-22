@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lithophane Studio · BadgerTech</title>
+<meta name="description" content="Turn your photos into 3D-printable lithophanes: baubles, panels and cylinders, made in your browser.">
+<link rel="manifest" href="site.webmanifest">
+<link rel="icon" type="image/svg+xml" href="brand/badgertech-mark-small.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="brand/badgertech-mark-32.png">
+<link rel="apple-touch-icon" href="brand/badgertech-mark-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Jost:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #eef0f0; --panel: #ffffff; --fg: #1b1e21; --muted: #5b646b; --line: #d3d8db;
+  --accent: #b9741a; --accent-ink: #fff; --accent-text: #8a5512; --soft: #fff4e0;
+  --font-display: "Jost", "Futura", system-ui, sans-serif; --font-body: "IBM Plex Sans", system-ui, sans-serif; --font-data: "IBM Plex Mono", ui-monospace, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg: #121416; --panel: #1a1d20; --fg: #e8eaeb; --muted: #9aa3a9; --line: #2d3236; --accent: #f0b45a; --accent-ink: #1a1d20; --accent-text: #f0b45a; --soft: #3a2a12; color-scheme: dark; }
+}
+:root[data-theme="dark"] { --bg: #121416; --panel: #1a1d20; --fg: #e8eaeb; --muted: #9aa3a9; --line: #2d3236; --accent: #f0b45a; --accent-ink: #1a1d20; --accent-text: #f0b45a; --soft: #3a2a12; color-scheme: dark; }
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); }
+a { color: var(--accent-text); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-left)); }
+header { background: var(--panel); border-bottom: 1px solid var(--line); }
+header .wrap { display: flex; align-items: center; gap: 16px; padding-top: 12px; padding-bottom: 12px; }
+header img { height: 34px; width: auto; display: block; }
+header nav { margin-left: auto; display: flex; gap: 18px; flex-wrap: wrap; }
+header nav a { color: var(--fg); text-decoration: none; font-weight: 500; }
+.lock-dark { display: none !important; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .lock-light { display: none !important; } :root:not([data-theme="light"]) .lock-dark { display: block !important; } }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 500; margin: 0; }
+.hero { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; padding: 48px 0 40px; }
+.hero > div { flex: 1 1 380px; display: flex; flex-direction: column; gap: 18px; }
+.eyebrow { font: 500 12px var(--font-data); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-text); margin: 0; }
+.hero h1 { font-size: clamp(38px, 6vw, 60px); line-height: 1.03; }
+.hero p.lead { color: var(--muted); font-size: 18px; margin: 0; max-width: 54ch; }
+.btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.btn { border-radius: 9px; padding: 12px 18px; font-weight: 600; text-decoration: none; background: var(--accent); color: var(--accent-ink); display: inline-block; }
+.btn.ghost { background: var(--panel); color: var(--fg); border: 1px solid var(--line); font-weight: 500; }
+.glow { flex: 1 1 340px; aspect-ratio: 4 / 3.4; border-radius: 16px; background: radial-gradient(circle at 50% 56%, #3a2a12 0, #121416 70%); display: grid; place-items: center; position: relative; overflow: hidden; }
+.glow svg { width: 62%; height: auto; }
+.glow small { position: absolute; left: 18px; bottom: 14px; font: 12px var(--font-data); color: #9aa3a9; }
+section.band { padding: 40px 0; border-top: 1px solid var(--line); }
+section.band > .wrap > p { color: var(--muted); max-width: 62ch; margin: 8px 0 22px; }
+.kit { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px; counter-reset: k; }
+.kit a { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 20px; text-decoration: none; color: var(--fg); display: flex; flex-direction: column; gap: 8px; }
+.kit a:hover { border-color: var(--accent); }
+.kit a::before { counter-increment: k; content: counter(k); font: 500 13px var(--font-data); width: 28px; height: 28px; border-radius: 50%; background: var(--soft); color: var(--accent-text); display: grid; place-items: center; }
+.kit p { margin: 0; color: var(--muted); font-size: 14px; }
+.kit span { margin-top: auto; font-weight: 600; color: var(--accent-text); }
+.shapes { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 16px; }
+.shapes a { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; text-decoration: none; color: var(--fg); display: flex; flex-direction: column; }
+.shapes a:hover { border-color: var(--accent); }
+.shapes .pic { background: #1b1e21; aspect-ratio: 4 / 3; display: grid; place-items: center; }
+.shapes .pic svg { width: 56%; height: auto; }
+.shapes .txt { padding: 14px 16px 16px; display: flex; flex-direction: column; gap: 4px; }
+.shapes .txt p { margin: 0; color: var(--muted); font-size: 14px; }
+.notes { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; }
+.notes h3 { font-size: 18px; margin-bottom: 6px; }
+.notes p { margin: 0; color: var(--muted); font-size: 14px; }
+footer { border-top: 1px solid var(--line); padding: 24px 0 40px; color: var(--muted); font-size: 13px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: space-between; }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <a href="./" aria-label="BadgerTech Lithophane Studio home">
+      <img class="lock-light" src="brand/badgertech-lockup.svg" alt="BadgerTech">
+      <img class="lock-dark" src="brand/badgertech-lockup-on-dark.svg" alt="BadgerTech">
+    </a>
+    <nav aria-label="Tools">
+      <a href="studio.html">Studio</a>
+      <a href="wrap/">Photo wrap</a>
+      <a href="cap/">End caps</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="wrap hero">
+    <div>
+      <p class="eyebrow">Lithophane Studio · runs in your browser</p>
+      <h1>Turn your photos into light.</h1>
+      <p class="lead">Pick a shape, frame your photo, watch it glow in a live 3D preview, then download a print-ready STL. Your photos never leave your computer.</p>
+      <div class="btns">
+        <a class="btn" href="studio.html?shape=bauble">Make a bauble</a>
+        <a class="btn ghost" href="studio.html?shape=flat">Make a panel</a>
+      </div>
+    </div>
+    <div class="glow" aria-hidden="true">
+      <svg viewBox="0 0 200 220">
+        <defs>
+          <radialGradient id="g" cx="50%" cy="58%" r="55%"><stop offset="0" stop-color="#fff1d0"/><stop offset=".55" stop-color="#f0b45a"/><stop offset="1" stop-color="#7a4a07"/></radialGradient>
+        </defs>
+        <rect x="82" y="6" width="36" height="26" rx="3" fill="#3a3f44"/>
+        <rect x="78" y="28" width="44" height="8" rx="2" fill="#2b2f34"/>
+        <circle cx="100" cy="124" r="88" fill="url(#g)"/>
+        <clipPath id="c"><circle cx="100" cy="124" r="88"/></clipPath>
+        <g clip-path="url(#c)">
+          <circle cx="132" cy="92" r="12" fill="#fff8e6"/>
+          <path d="M0 170 L46 120 L72 146 L108 104 L150 150 L200 126 L200 220 L0 220 Z" fill="#7a4a07" opacity=".55"/>
+          <path d="M0 196 Q60 170 110 186 T200 180 L200 220 L0 220 Z" fill="#5a3505" opacity=".7"/>
+        </g>
+      </svg>
+      <small>A 100 mm bauble, lit from inside</small>
+    </div>
+  </div>
+
+  <section class="band" aria-labelledby="kit-h">
+    <div class="wrap">
+      <h2 id="kit-h">The bauble kit</h2>
+      <p>Three tools that work together. Sizes carry from one to the next, so the cap always fits the bauble.</p>
+      <div class="kit">
+        <a href="wrap/?studio=1"><h3>Lay out your photos</h3><p>Put two or three photos round the bauble in the wrap tool, then send the result straight to the studio.</p><span>Photo wrap →</span></a>
+        <a href="studio.html?shape=bauble"><h3>Make the bauble</h3><p>A sphere with a neck and a ledge, shaped from your photo. Prints neck-down with light tree supports.</p><span>Studio →</span></a>
+        <a href="cap/"><h3>Print the end cap</h3><p>A snap-on cap with a hanging loop and a spindle for fairy lights, sized to your bauble.</p><span>End caps →</span></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="shapes-h">
+    <div class="wrap">
+      <h2 id="shapes-h">Pick a shape</h2>
+      <p>More shapes are on the way. Each one has its own print sheet with the settings that suit it.</p>
+      <div class="shapes">
+        <a href="studio.html?shape=bauble"><div class="pic" aria-hidden="true"><svg viewBox="0 0 100 100"><rect x="42" y="4" width="16" height="12" rx="2" fill="#5b646b"/><circle cx="50" cy="58" r="38" fill="#f0b45a"/></svg></div><div class="txt"><h3>Bauble</h3><p>Sphere with a neck for an end cap.</p></div></a>
+        <a href="studio.html?shape=flat"><div class="pic" aria-hidden="true"><svg viewBox="0 0 100 100"><rect x="14" y="22" width="72" height="56" rx="2" fill="#f0b45a"/><rect x="14" y="22" width="72" height="56" rx="2" fill="none" stroke="#b9741a" stroke-width="5"/></svg></div><div class="txt"><h3>Flat panel</h3><p>A framed picture for a window or a light box.</p></div></a>
+        <a href="studio.html?shape=curved"><div class="pic" aria-hidden="true"><svg viewBox="0 0 100 100"><path d="M12 30 Q50 14 88 30 L88 80 Q50 64 12 80 Z" fill="#f0b45a" stroke="#b9741a" stroke-width="4"/></svg></div><div class="txt"><h3>Curved panel</h3><p>Stands on its own, with a gentle bend.</p></div></a>
+        <a href="studio.html?shape=cylinder"><div class="pic" aria-hidden="true"><svg viewBox="0 0 100 100"><rect x="24" y="16" width="52" height="68" fill="#f0b45a"/><ellipse cx="50" cy="16" rx="26" ry="7" fill="#b9741a"/><path d="M24 84 A26 7 0 0 0 76 84" fill="none" stroke="#b9741a" stroke-width="4"/></svg></div><div class="txt"><h3>Cylinder</h3><p>A lamp shade for a tea light or an LED puck.</p></div></a>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" aria-labelledby="tips-h">
+    <div class="wrap">
+      <h2 id="tips-h" style="margin-bottom:20px">Good to know</h2>
+      <div class="notes">
+        <div><h3>Private by design</h3><p>Everything happens in your browser. Nothing is uploaded, and your settings stay on this computer.</p></div>
+        <div><h3>White PLA, slow walls</h3><p>Print at 0.12 mm layers with 100% infill. Each model's print sheet lists the rest.</p></div>
+        <div><h3>Check it lit</h3><p>The preview shows how light passes through the thickness. Switch to Daylight to see the surface instead.</p></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>BadgerTech Lithophane Studio</span>
+    <span>Built with three.js (MIT). Fonts: Jost, IBM Plex (SIL Open Font License).</span>
+  </div>
+</footer>
+</body>
+</html>

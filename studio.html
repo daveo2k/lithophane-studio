@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lithophane Studio · BadgerTech</title>
+<link rel="manifest" href="site.webmanifest">
+<link rel="icon" type="image/svg+xml" href="brand/badgertech-mark-small.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="brand/badgertech-mark-32.png">
+<link rel="apple-touch-icon" href="brand/badgertech-mark-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Jost:wght@400;500;600&display=swap">
+<style>
+/* BadgerTech theme, shared with the House Number Generator, the wrap tool and the end cap maker. */
+:root {
+  --bg: #eef0f0; --panel: #ffffff; --sunk: #e2e6e7; --fg: #1b1e21; --muted: #5b646b; --line: #d3d8db;
+  --accent: #b9741a; --accent-ink: #ffffff; --accent-text: #8a5512; --warn-bg: #fff4e0; --warn-fg: #7a4a07;
+  --stage: #121416; --stage-ink: #e8eaeb; --stage-chip: #24282c; --glow: #f0b45a;
+  --font-display: "Jost", "Futura", "Avenir Next", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121416; --panel: #1a1d20; --sunk: #24282c; --fg: #e8eaeb; --muted: #9aa3a9; --line: #2d3236;
+    --accent: #f0b45a; --accent-ink: #1a1d20; --accent-text: #f0b45a; --warn-bg: #3a2a12; --warn-fg: #f6d39a;
+    --stage: #0c0d0f; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121416; --panel: #1a1d20; --sunk: #24282c; --fg: #e8eaeb; --muted: #9aa3a9; --line: #2d3236;
+  --accent: #f0b45a; --accent-ink: #1a1d20; --accent-text: #f0b45a; --warn-bg: #3a2a12; --warn-fg: #f6d39a;
+  --stage: #0c0d0f; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.45; }
+[hidden] { display: none !important; }
+a { color: var(--accent-text); }
+button, input, select { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.top { background: var(--panel); border-bottom: 1px solid var(--line); }
+.top-in { max-width: 1400px; margin: 0 auto; padding: 10px max(16px, env(safe-area-inset-left)); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; }
+.top .home img { display: block; width: 32px; height: 32px; }
+.proj { display: flex; flex-direction: column; min-width: 0; }
+.proj span { font: 11px var(--font-data); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
+.proj input { border: 0; background: transparent; padding: 0; font: 500 18px var(--font-display); width: 16em; max-width: 60vw; }
+.steps { flex: 1 1 320px; display: flex; justify-content: center; gap: 4px; }
+.steps button { border: 0; background: transparent; border-radius: 999px; padding: 8px 14px; display: flex; gap: 8px; align-items: center; cursor: pointer; }
+.steps button b { font: 500 12px var(--font-data); color: var(--muted); }
+.steps button[aria-current="step"] { background: var(--fg); color: var(--bg); }
+.steps button[aria-current="step"] b { color: var(--bg); }
+.btn { border: 0; border-radius: 8px; padding: 10px 16px; font-weight: 600; background: var(--accent); color: var(--accent-ink); cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn.ghost { background: var(--panel); color: var(--fg); border: 1px solid var(--line); font-weight: 500; }
+.btn[disabled] { opacity: .5; cursor: not-allowed; }
+
+main { max-width: 1400px; margin: 0 auto; padding: 20px max(16px, env(safe-area-inset-left)) 40px; }
+.cols { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+.wide { flex: 999 1 620px; min-width: 0; display: flex; flex-direction: column; gap: 14px; }
+.rail { flex: 1 1 320px; min-width: 0; background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 16px; }
+.card { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+h1, h2 { font-family: var(--font-display); font-weight: 500; margin: 0; }
+h1 { font-size: 24px; } h2 { font-size: 20px; }
+fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+legend { font: 500 11px var(--font-data); letter-spacing: .08em; text-transform: uppercase; color: var(--accent-text); padding: 0; margin-bottom: 6px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) 104px; align-items: center; gap: 10px; }
+.field { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 7px; background: var(--bg); overflow: hidden; }
+.field input, .field select { width: 100%; min-width: 0; border: 0; background: transparent; font: 500 13px var(--font-data); padding: 7px 4px 7px 8px; }
+.field span { font: 12px var(--font-data); color: var(--muted); padding-right: 8px; }
+select.full { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); font-size: 15px; }
+.slider { display: grid; grid-template-columns: minmax(0, 1fr) 150px 44px; gap: 10px; align-items: center; }
+.slider output { font: 12px var(--font-data); color: var(--muted); text-align: right; }
+input[type="range"] { accent-color: var(--accent); width: 100%; }
+.check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.check input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+.hint { color: var(--muted); font-size: 12px; margin: 0; }
+.warn { background: var(--warn-bg); color: var(--warn-fg); border-radius: 8px; padding: 9px 12px; font-size: 13px; margin: 0; }
+dl.stats { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 14px; font: 12px var(--font-data); }
+dl.stats dt { color: var(--muted); } dl.stats dd { margin: 0; }
+
+/* image step */
+.cropbox { position: relative; background: var(--sunk); border-radius: 8px; overflow: hidden; touch-action: none; cursor: grab; }
+.cropbox:active { cursor: grabbing; }
+.cropbox canvas { display: block; width: 100%; height: auto; }
+.empty { position: absolute; inset: 0; display: grid; place-items: center; text-align: center; padding: 20px; color: var(--muted); }
+.drop { border: 2px dashed var(--line); border-radius: 12px; padding: 18px; text-align: center; display: flex; flex-direction: column; gap: 10px; align-items: center; }
+.drop.over { border-color: var(--accent); background: var(--warn-bg); }
+
+/* 3D stage */
+.stage { position: relative; background: var(--stage); border-radius: 12px; overflow: hidden; min-height: 560px; height: calc(100vh - 140px); max-height: 900px; }
+.stage.day { background: #dfe4e6; }
+#view { position: absolute; inset: 0; }
+#view canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.chips { position: absolute; left: 12px; right: 12px; top: 12px; display: flex; flex-wrap: wrap; gap: 8px; pointer-events: none; }
+.chip { pointer-events: auto; display: inline-flex; align-items: center; gap: 6px; background: var(--stage-chip); color: var(--stage-ink); border: 0; border-radius: 999px; padding: 6px 12px; font-size: 13px; cursor: pointer; }
+.seg2 { pointer-events: auto; display: flex; gap: 2px; background: var(--stage-chip); border-radius: 999px; padding: 3px; }
+.seg2 button { border: 0; border-radius: 999px; padding: 5px 12px; background: transparent; color: var(--stage-ink); font-size: 13px; cursor: pointer; }
+.seg2 button[aria-pressed="true"] { background: var(--glow); color: #1a1d20; }
+.parts { position: absolute; left: 12px; bottom: 12px; background: #1a1d20; color: var(--stage-ink); border-radius: 10px; padding: 8px 12px; font: 12px var(--font-data); }
+.parts td, .parts th { padding: 2px 14px 2px 0; text-align: left; font-weight: 400; }
+.parts th { color: #9aa3a9; }
+.sbar { position: absolute; right: 12px; bottom: 12px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.sbar .chip input { width: 110px; accent-color: var(--glow); }
+.sbar small { font: 12px var(--font-data); color: #9aa3a9; }
+.busy { position: absolute; inset: 0; display: grid; place-items: center; color: #9aa3a9; font-size: 13px; pointer-events: none; }
+
+/* print step */
+.pgrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; align-items: start; }
+@media (max-width: 1000px) { .pgrid { grid-template-columns: 1fr; } }
+ul.checks { margin: 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; }
+ul.checks li { display: flex; gap: 8px; align-items: baseline; }
+ul.checks li::before { content: "✓"; font-weight: 600; }
+ul.checks li.bad::before { content: "!"; color: var(--warn-fg); }
+table.sheet { width: 100%; border-collapse: collapse; font-size: 13px; }
+table.sheet th { text-align: left; font-weight: 400; color: var(--muted); padding: 7px 8px 7px 0; border-bottom: 1px solid var(--line); vertical-align: top; }
+table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1px solid var(--line); }
+.capcard { background: #1b1e21; color: #e8eaeb; border-color: #1b1e21; }
+.capcard .hint, .capcard dt { color: #9aa3a9; }
+.capcard .eyebrow { font: 500 11px var(--font-data); letter-spacing: .08em; text-transform: uppercase; color: #f0b45a; }
+.capcard .btn { background: #f0b45a; color: #1a1d20; }
+.status { font-size: 12px; color: var(--muted); min-height: 1.2em; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="top-in">
+    <a class="home" href="./" aria-label="Lithophane Studio home"><img src="brand/badgertech-mark-small.svg" alt="" width="32" height="32"></a>
+    <div class="proj"><span id="proj-kind">Bauble</span><input id="proj-name" value="My lithophane" aria-label="Project name"></div>
+    <nav class="steps" aria-label="Steps">
+      <button type="button" data-step="image" aria-current="step"><b>1</b>Image</button>
+      <button type="button" data-step="shape"><b>2</b>Shape</button>
+      <button type="button" data-step="print"><b>3</b>Print</button>
+    </nav>
+    <button type="button" class="btn" id="next">Next: shape</button>
+  </div>
+</header>
+
+<main>
+  <!-- 1 · Image -->
+  <section id="step-image" class="cols" aria-label="Image">
+    <div class="wide">
+      <div class="card">
+        <div style="display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px;align-items:baseline">
+          <h1 id="img-title">Your image</h1>
+          <span class="hint" id="img-size" style="font-family:var(--font-data)"></span>
+        </div>
+        <div class="cropbox" id="cropbox">
+          <canvas id="crop" width="1200" height="530" aria-label="The part of your image that will be printed. Drag to move it."></canvas>
+          <div class="empty" id="crop-empty"><div><strong style="color:var(--fg)">Add a photo to start</strong><br>Drop it on the box on the right, or choose a file.</div></div>
+        </div>
+        <p class="hint" id="crop-hint">Drag the picture to move it. Use Zoom to fill the shape. What you see here is exactly what gets printed.</p>
+      </div>
+    </div>
+    <aside class="rail" aria-label="Image settings">
+      <div class="drop" id="drop">
+        <strong>Drop a photo here</strong>
+        <label class="btn ghost" for="file">Choose a photo</label>
+        <input id="file" type="file" accept="image/*" hidden>
+        <a id="wrap-link" class="hint" href="wrap/?studio=1">Or lay out several photos round a bauble in the wrap tool</a>
+      </div>
+      <fieldset>
+        <legend>Framing</legend>
+        <div class="slider"><label for="zoom">Zoom</label><input id="zoom" type="range" min="1" max="5" step="0.01" value="1"><output id="zoom-o">1.0×</output></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost" id="fit">Fill the shape</button><button type="button" class="btn ghost" id="centre">Centre</button></div>
+      </fieldset>
+      <fieldset>
+        <legend>Tone for the print</legend>
+        <div class="slider"><label for="bright">Brightness</label><input id="bright" type="range" min="-50" max="50" step="1" value="0"><output id="bright-o">0</output></div>
+        <div class="slider"><label for="contrast">Contrast</label><input id="contrast" type="range" min="-50" max="80" step="1" value="0"><output id="contrast-o">0</output></div>
+        <label class="check"><input id="invert" type="checkbox"> Invert (for a negative)</label>
+        <label class="check"><input id="asprint" type="checkbox" checked> Show as the print will look</label>
+      </fieldset>
+      <p class="warn" id="img-warn" hidden></p>
+    </aside>
+  </section>
+
+  <!-- 2 · Shape -->
+  <section id="step-shape" class="cols" aria-label="Shape" hidden>
+    <aside class="rail" aria-label="Shape settings">
+      <label for="shape" style="display:flex;flex-direction:column;gap:6px">Shape
+        <select id="shape" class="full">
+          <option value="bauble">Bauble (sphere with a neck)</option>
+          <option value="flat">Flat panel</option>
+          <option value="curved">Curved panel</option>
+          <option value="cylinder">Cylinder</option>
+        </select>
+      </label>
+      <fieldset data-for="bauble">
+        <legend>Bauble size</legend>
+        <div class="row"><label for="sphereD">Sphere diameter</label><div class="field"><input id="sphereD" type="number" step="1" min="40" value="100"><span>mm</span></div></div>
+        <div class="row"><label for="cylD">Neck outer diameter</label><div class="field"><input id="cylD" type="number" step="0.5" min="10" value="36"><span>mm</span></div></div>
+        <div class="row"><label for="cylT">Neck wall</label><div class="field"><input id="cylT" type="number" step="0.1" min="1" value="3"><span>mm</span></div></div>
+        <div class="row"><label for="cylH">Neck height</label><div class="field"><input id="cylH" type="number" step="0.5" min="4" value="15"><span>mm</span></div></div>
+        <div class="row"><label for="ledgeD">Cap ledge diameter</label><div class="field"><input id="ledgeD" type="number" step="0.5" min="10" value="40"><span>mm</span></div></div>
+        <div class="row"><label for="bottomHole">Hole at the bottom</label><div class="field"><input id="bottomHole" type="number" step="1" min="0" value="0"><span>mm</span></div></div>
+        <p class="hint">These match the end cap maker, so the cap snaps onto the ledge.</p>
+      </fieldset>
+      <fieldset data-for="flat curved">
+        <legend>Panel size</legend>
+        <div class="row"><label for="width">Width</label><div class="field"><input id="width" type="number" step="1" min="20" value="100"><span>mm</span></div></div>
+        <div class="row"><label for="height">Height</label><div class="field"><input id="height" type="number" step="1" min="20" value="80"><span>mm</span></div></div>
+        <div class="row" data-for="curved"><label for="radius">Curve radius</label><div class="field"><input id="radius" type="number" step="1" min="30" value="80"><span>mm</span></div></div>
+        <div class="row"><label for="frame">Border width</label><div class="field"><input id="frame" type="number" step="0.5" min="0" value="3"><span>mm</span></div></div>
+      </fieldset>
+      <fieldset data-for="cylinder">
+        <legend>Cylinder size</legend>
+        <div class="row"><label for="cylDiam">Diameter</label><div class="field"><input id="cylDiam" type="number" step="1" min="30" value="70"><span>mm</span></div></div>
+        <div class="row"><label for="cylHeight">Height</label><div class="field"><input id="cylHeight" type="number" step="1" min="20" value="90"><span>mm</span></div></div>
+        <div class="row"><label for="rim">Solid rim, top and bottom</label><div class="field"><input id="rim" type="number" step="0.5" min="0" value="3"><span>mm</span></div></div>
+      </fieldset>
+      <fieldset>
+        <legend>Thickness</legend>
+        <div class="row"><label for="minT">Thinnest (white)</label><div class="field"><input id="minT" type="number" step="0.1" min="0.4" value="0.8"><span>mm</span></div></div>
+        <div class="row"><label for="maxT">Thickest (black)</label><div class="field"><input id="maxT" type="number" step="0.1" min="1" value="2.7"><span>mm</span></div></div>
+        <div class="row" data-for="flat curved cylinder"><label for="frameT">Border thickness</label><div class="field"><input id="frameT" type="number" step="0.1" min="1" value="2.7"><span>mm</span></div></div>
+        <div class="row"><label for="curve">Tone curve</label><div class="field"><select id="curve"><option value="natural">Natural</option><option value="linear">Straight line</option></select></div></div>
+        <p class="hint">Natural spreads the tones the way light fades through white PLA, so mid-greys don't all look dark.</p>
+      </fieldset>
+      <fieldset>
+        <legend>Detail</legend>
+        <div class="row"><label for="res">Detail</label><div class="field"><select id="res"><option value="0.2">Finest, 0.2 mm</option><option value="0.25">Fine, 0.25 mm</option><option value="0.3" selected>Good, 0.3 mm</option><option value="0.4">Quick, 0.4 mm</option><option value="0.5">Draft, 0.5 mm</option></select></div></div>
+        <dl class="stats"><dt>Image size used</dt><dd id="est-px">–</dd><dt>Triangles</dt><dd id="est-tris">–</dd><dt>STL file</dt><dd id="est-mb">–</dd></dl>
+        <p class="hint">0.3 mm suits a 0.4 mm nozzle. The preview uses a lighter version; the download uses this detail.</p>
+      </fieldset>
+      <div id="shape-warn"></div>
+    </aside>
+    <div class="wide">
+      <section class="stage" id="stage" aria-label="3D preview">
+        <div id="view"></div>
+        <div class="busy" id="busy">Building the preview…</div>
+        <div class="chips">
+          <div class="seg2" role="group" aria-label="Lighting"><button type="button" id="lit" aria-pressed="true">Lit from inside</button><button type="button" id="day" aria-pressed="false">Daylight</button></div>
+          <button type="button" class="chip" id="reset" style="margin-left:auto">Reset view</button>
+        </div>
+        <table class="parts" aria-label="Part size"><thead><tr><th scope="col">Part</th><th scope="col">Size, mm</th></tr></thead><tbody><tr><td id="part-name">Lithophane</td><td id="part-size">–</td></tr></tbody></table>
+        <div class="sbar">
+          <label class="chip">Light <input id="light" type="range" min="20" max="160" value="80"></label>
+          <small id="build-status">–</small>
+        </div>
+      </section>
+    </div>
+  </section>
+
+  <!-- 3 · Print -->
+  <section id="step-print" aria-label="Print" hidden>
+    <div class="pgrid">
+      <section class="card" aria-labelledby="dl-h">
+        <h1 id="dl-h">Ready to print</h1>
+        <dl class="stats" id="final-stats"></dl>
+        <ul class="checks" id="final-checks"></ul>
+        <button type="button" class="btn" id="download">Download STL</button>
+        <div class="status" id="dl-status" role="status"></div>
+      </section>
+      <section class="card" aria-labelledby="ps-h">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px"><h2 id="ps-h">Print sheet</h2><span class="hint" style="font-family:var(--font-data)">for this model</span></div>
+        <table class="sheet"><tbody id="sheet"></tbody></table>
+        <div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="btn ghost" id="copy">Copy settings</button><button type="button" class="btn ghost" id="printsheet">Print this sheet</button></div>
+        <div class="status" id="copy-status" role="status"></div>
+      </section>
+      <section class="card capcard" id="capcard" aria-labelledby="cap-h">
+        <span class="eyebrow">Next in the bauble kit</span>
+        <h2 id="cap-h">Make the end cap</h2>
+        <p class="hint">These sizes come straight from your bauble, so the cap snaps on first time.</p>
+        <dl class="stats" id="cap-sizes"></dl>
+        <a class="btn" id="cap-link" href="cap/">Open the end cap maker</a>
+      </section>
+    </div>
+  </section>
+</main>
+
+<script src="geometry.js"></script>
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const $ = (id) => document.getElementById(id);
+const NUM = ['sphereD', 'cylD', 'cylT', 'cylH', 'ledgeD', 'bottomHole', 'width', 'height', 'radius', 'frame', 'cylDiam', 'cylHeight', 'rim', 'minT', 'maxT', 'frameT'];
+const KIND = { bauble: 'Bauble', flat: 'Flat panel', curved: 'Curved panel', cylinder: 'Cylinder' };
+const S = {                       // everything the user sets, kept in this browser between visits
+  name: 'My lithophane', shape: 'bauble', curve: 'natural', res: 0.3,
+  bright: 0, contrast: 0, invert: false, asPrint: true, zoom: 1, cx: 0.5, cy: 0.5, light: 80, view: 'lit',
+};
+NUM.forEach((k) => { S[k] = parseFloat($(k).defaultValue); });
+let img = null, imgW = 0, imgH = 0, step = 'image';
+
+// ---------- settings in and out ----------
+function load() {
+  try { Object.assign(S, JSON.parse(localStorage.getItem('litho-studio') || '{}')); } catch {}
+  const q = new URLSearchParams(location.search);
+  if (KIND[q.get('shape')]) S.shape = q.get('shape');
+  const h = new URLSearchParams(location.hash.slice(1));
+  for (const k of NUM) if (h.has(k) && isFinite(+h.get(k))) S[k] = +h.get(k);
+}
+function save() { try { localStorage.setItem('litho-studio', JSON.stringify(S)); } catch {} }
+function toForm() {
+  NUM.forEach((k) => { $(k).value = S[k]; });
+  $('shape').value = S.shape; $('curve').value = S.curve; $('res').value = String(S.res);
+  $('bright').value = S.bright; $('contrast').value = S.contrast; $('invert').checked = S.invert; $('asprint').checked = S.asPrint;
+  $('zoom').value = S.zoom; $('light').value = S.light; $('proj-name').value = S.name;
+}
+function geo() {                  // the numbers geometry.js expects for the current shape
+  const p = { minT: S.minT, maxT: Math.max(S.maxT, S.minT + 0.2), curve: S.curve, frameT: Math.max(S.frameT, S.minT), frame: S.frame,
+    rim: S.rim, width: S.width, height: S.height, radius: S.radius, cylDiam: S.cylDiam,
+    sphereD: S.sphereD, cylD: S.cylD, cylT: S.cylT, ledgeD: S.ledgeD, cylH: S.cylH, bottomHole: S.bottomHole };
+  if (S.shape === 'cylinder') p.height = S.cylHeight;
+  return p;
+}
+const area = () => Litho.imageArea(S.shape, geo());
+function grid(res) { const a = area(); return { cols: Math.max(8, Math.round(a.U / res)), rows: Math.max(4, Math.round(a.V / res) + 1) }; }
+
+// ---------- image: loading, framing, tone ----------
+function setImage(src, keepFraming) {
+  img = src; imgW = src.naturalWidth || src.width; imgH = src.naturalHeight || src.height;
+  if (!keepFraming) { S.zoom = 1; S.cx = 0.5; S.cy = 0.5; $('zoom').value = 1; }
+  $('crop-empty').hidden = true; drawCrop(); updateShapeInfo(); markDirty();
+}
+function readFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  const url = URL.createObjectURL(file), im = new Image();
+  im.onload = () => { setImage(im); };
+  im.src = url;
+}
+$('file').addEventListener('change', (e) => readFile(e.target.files[0]));
+const drop = $('drop');
+['dragenter', 'dragover'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.add('over'); }));
+['dragleave', 'drop'].forEach((t) => drop.addEventListener(t, (e) => { e.preventDefault(); drop.classList.remove('over'); }));
+drop.addEventListener('drop', (e) => readFile(e.dataTransfer.files[0]));
+$('cropbox').addEventListener('dragover', (e) => e.preventDefault());
+$('cropbox').addEventListener('drop', (e) => { e.preventDefault(); readFile(e.dataTransfer.files[0]); });
+
+// the crop rectangle in image pixels, at the shape's aspect ratio
+function cropRect() {
+  const a = area(), asp = a.U / a.V;
+  let cw, ch;
+  if (imgW / imgH > asp) { ch = imgH; cw = ch * asp; } else { cw = imgW; ch = cw / asp; }
+  cw /= S.zoom; ch /= S.zoom;
+  const cx = Math.min(Math.max(S.cx * imgW, cw / 2), imgW - cw / 2), cy = Math.min(Math.max(S.cy * imgH, ch / 2), imgH - ch / 2);
+  return { x: cx - cw / 2, y: cy - ch / 2, w: cw, h: ch };
+}
+function toneLum(d, n) {          // RGBA bytes → brightness 0..1 with the tone settings applied
+  const out = new Float32Array(n), c = 1 + S.contrast / 50, b = S.bright / 100;
+  for (let i = 0; i < n; i++) {
+    let L = (0.2126 * d[4 * i] + 0.7152 * d[4 * i + 1] + 0.0722 * d[4 * i + 2]) / 255;
+    L = (L - 0.5) * c + 0.5 + b;
+    L = L < 0 ? 0 : L > 1 ? 1 : L;
+    out[i] = S.invert ? 1 - L : L;
+  }
+  return out;
+}
+function sample(cols, rows) {     // the framed image at the mesh's grid size
+  if (!img) return new Float32Array(cols * rows).fill(0.62);
+  const cv = document.createElement('canvas'); cv.width = cols; cv.height = rows;
+  const x = cv.getContext('2d', { willReadFrequently: true }); x.imageSmoothingQuality = 'high';
+  const r = cropRect(); x.drawImage(img, r.x, r.y, r.w, r.h, 0, 0, cols, rows);
+  return toneLum(x.getImageData(0, 0, cols, rows).data, cols * rows);
+}
+const crop = $('crop');
+function drawCrop() {
+  const a = area(), asp = a.U / a.V, W = 1200, H = Math.max(120, Math.round(W / asp));
+  if (crop.height !== H) crop.height = H;
+  const x = crop.getContext('2d');
+  x.fillStyle = getComputedStyle(document.body).getPropertyValue('--sunk') || '#e2e6e7'; x.fillRect(0, 0, W, H);
+  if (!img) return;
+  const r = cropRect(); x.imageSmoothingQuality = 'high'; x.drawImage(img, r.x, r.y, r.w, r.h, 0, 0, W, H);
+  if (S.asPrint) {
+    // show how it will look lit: brightness after tone, as the light through the plastic
+    const d = x.getImageData(0, 0, W, H), L = toneLum(d.data, W * H), T = Litho.thickness(L, geo()), k = 1.2, p = geo();
+    for (let i = 0; i < W * H; i++) {
+      const v = Math.exp(-k * (T[i] - p.minT));
+      d.data[4 * i] = Math.min(255, 255 * v); d.data[4 * i + 1] = Math.min(255, 228 * v); d.data[4 * i + 2] = Math.min(255, 180 * v);
+    }
+    x.putImageData(d, 0, 0);
+  }
+  if (S.shape === 'bauble' || S.shape === 'cylinder') {
+    x.strokeStyle = 'rgba(246,211,154,.9)'; x.setLineDash([6, 6]); x.beginPath(); x.moveTo(W / 2, 0); x.lineTo(W / 2, H); x.stroke(); x.setLineDash([]);
+    x.font = '500 22px "IBM Plex Mono", monospace'; x.fillStyle = 'rgba(246,211,154,.95)'; x.fillText('Front', W / 2 + 8, 28);
+  }
+}
+let drag = null;
+crop.addEventListener('pointerdown', (e) => { if (!img) return; drag = { x: e.clientX, y: e.clientY, cx: S.cx, cy: S.cy }; crop.setPointerCapture(e.pointerId); });
+crop.addEventListener('pointermove', (e) => {
+  if (!drag) return;
+  const r = cropRect(), k = r.w / crop.getBoundingClientRect().width;
+  S.cx = drag.cx - (e.clientX - drag.x) * k / imgW; S.cy = drag.cy - (e.clientY - drag.y) * k / imgH;
+  const rr = cropRect(); S.cx = (rr.x + rr.w / 2) / imgW; S.cy = (rr.y + rr.h / 2) / imgH;
+  drawCrop();
+});
+crop.addEventListener('pointerup', () => { if (drag) { drag = null; markDirty(); save(); } });
+crop.addEventListener('wheel', (e) => { if (!img) return; e.preventDefault(); S.zoom = Math.min(5, Math.max(1, S.zoom * (e.deltaY < 0 ? 1.06 : 1 / 1.06))); $('zoom').value = S.zoom; $('zoom-o').textContent = S.zoom.toFixed(1) + '×'; drawCrop(); markDirty(); }, { passive: false });
+$('fit').addEventListener('click', () => { S.zoom = 1; $('zoom').value = 1; drawCrop(); markDirty(); save(); syncOut(); });
+$('centre').addEventListener('click', () => { S.cx = 0.5; S.cy = 0.5; drawCrop(); markDirty(); save(); });
+function syncOut() {
+  $('zoom-o').textContent = (+S.zoom).toFixed(1) + '×'; $('bright-o').textContent = S.bright; $('contrast-o').textContent = S.contrast;
+}
+
+// ---------- shape info, estimates, warnings ----------
+function updateShapeInfo() {
+  const a = area(), p = geo();
+  $('proj-kind').textContent = KIND[S.shape] + (S.shape === 'bauble' ? ` · ${S.sphereD} mm` : '');
+  document.querySelectorAll('[data-for]').forEach((el) => { el.hidden = !el.dataset.for.split(' ').includes(S.shape); });
+  const best = Math.round(a.V / 0.1 / 100) * 100, bestW = Math.round(best * a.U / a.V);
+  $('img-title').textContent = S.shape === 'bauble' ? 'Wrap round the bauble' : S.shape === 'cylinder' ? 'Wrap round the cylinder' : 'Your image';
+  $('img-size').textContent = `Ideal image ${bestW} × ${best} px` + (a.degTall ? ` · 360° × ${a.degTall.toFixed(1)}°` : '');
+  $('wrap-link').hidden = S.shape !== 'bauble';
+  $('wrap-link').href = `wrap/?studio=1#sphereD=${S.sphereD}&cylD=${S.cylD}`;
+  const g = grid(S.res), tris = 4 * g.cols * g.rows;
+  $('est-px').textContent = `${g.cols} × ${g.rows} px`;
+  $('est-tris').textContent = (tris / 1e6).toFixed(2) + ' million';
+  $('est-mb').textContent = `about ${Math.round((84 + 50 * tris) / 1e6)} MB`;
+  const w = [];
+  if (S.maxT <= S.minT) w.push('Thickest must be more than thinnest.');
+  if (S.minT < 0.6) w.push('Thinner than 0.6 mm can print with holes in the brightest areas.');
+  if (S.shape === 'bauble' && S.cylD >= S.sphereD * 0.8) w.push('The neck is too wide for this sphere.');
+  if (S.shape === 'bauble' && S.ledgeD <= S.cylD) w.push('The cap ledge must be wider than the neck, or the cap has nothing to clip under.');
+  if (S.shape === 'curved' && S.width > Math.PI * S.radius) w.push('This panel is wider than half a circle at this radius. Make the radius bigger, or use Cylinder.');
+  if (tris > 6e6) w.push('That much detail makes a very large file. Choose a coarser detail if your slicer struggles.');
+  $('shape-warn').replaceChildren(...w.map((t) => { const p2 = document.createElement('p'); p2.className = 'warn'; p2.textContent = t; return p2; }));
+  // image detail hint: how many image pixels per printed mm
+  if (img) {
+    const r = cropRect(), ppm = r.h / a.V;
+    $('img-warn').hidden = ppm >= 5;
+    $('img-warn').textContent = `This photo gives ${ppm.toFixed(1)} pixels per mm on the print. Fine detail needs about 5 or more: use a bigger photo, or don't zoom in so far.`;
+  } else $('img-warn').hidden = true;
+}
+
+// ---------- 3D preview ----------
+const view = $('view');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1));
+view.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, 1, 5000); camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement); controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x404040, 1.4));
+const key = new THREE.DirectionalLight(0xffffff, 1.6); key.position.set(-80, -160, 120); scene.add(key);
+const litMat = new THREE.MeshBasicMaterial({ vertexColors: true, side: THREE.DoubleSide });
+const dayMat = new THREE.MeshStandardMaterial({ color: 0xf1f1ec, roughness: 0.55, side: THREE.DoubleSide });
+let mesh = null, current = null, framed = false;
+function resize() { const w = view.clientWidth, h = view.clientHeight; if (!w || !h) return; renderer.setSize(w, h, false); camera.aspect = w / h; camera.updateProjectionMatrix(); }
+new ResizeObserver(resize).observe(view);
+(function loop() { requestAnimationFrame(loop); controls.update(); renderer.render(scene, camera); })();
+function colours(thick) {
+  const p = geo(), k = 1.2, gain = S.light / 80, c = new Float32Array(thick.length * 3);
+  for (let i = 0; i < thick.length; i++) {
+    const v = Math.min(1.15, gain * Math.exp(-k * (thick[i] - p.minT)));
+    c[3 * i] = Math.min(1, v); c[3 * i + 1] = Math.min(1, v * 0.86); c[3 * i + 2] = Math.min(1, v * 0.62);
+  }
+  return c;
+}
+function frame(b) {
+  const c = new THREE.Vector3((b.lo[0] + b.hi[0]) / 2, (b.lo[1] + b.hi[1]) / 2, (b.lo[2] + b.hi[2]) / 2);
+  const r = Math.max(...b.size) * 0.62;
+  const d = r / Math.tan(THREE.MathUtils.degToRad(camera.fov / 2)) * 1.15;
+  controls.target.copy(c); camera.position.set(c.x + d * 0.25, c.y - d, c.z + d * 0.18); camera.near = d / 100; camera.far = d * 10; camera.updateProjectionMatrix();
+}
+function setLighting() {
+  $('lit').setAttribute('aria-pressed', String(S.view === 'lit')); $('day').setAttribute('aria-pressed', String(S.view !== 'lit'));
+  $('stage').classList.toggle('day', S.view !== 'lit');
+  if (mesh) mesh.material = S.view === 'lit' ? litMat : dayMat;
+}
+function rebuildPreview() {
+  const t0 = performance.now(), res = Math.max(0.5, S.res);
+  const g = grid(res), p = geo();
+  const T = Litho.thickness(sample(g.cols, g.rows), p);
+  const m = Litho.build(S.shape, p, T, g.cols, g.rows);
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute('position', new THREE.BufferAttribute(m.pos, 3));
+  geom.setAttribute('color', new THREE.BufferAttribute(colours(m.thick), 3));
+  geom.setIndex(new THREE.BufferAttribute(m.idx, 1));
+  geom.computeVertexNormals();
+  if (mesh) { scene.remove(mesh); mesh.geometry.dispose(); }
+  mesh = new THREE.Mesh(geom, S.view === 'lit' ? litMat : dayMat); scene.add(mesh);
+  current = m;
+  const b = Litho.bounds(m.pos);
+  $('part-name').textContent = KIND[S.shape];
+  $('part-size').textContent = b.size.map((v) => v.toFixed(1)).join(' × ');
+  if (!framed) { frame(b); framed = true; }
+  $('busy').hidden = true;
+  $('build-status').textContent = `Preview up to date · ${Math.round(performance.now() - t0)} ms`;
+}
+let dirty = true, timer = 0;
+function markDirty() { dirty = true; finalMesh = null; if (step === 'shape') { clearTimeout(timer); $('build-status').textContent = 'Updating…'; timer = setTimeout(() => { rebuildPreview(); dirty = false; }, 120); } }
+$('lit').addEventListener('click', () => { S.view = 'lit'; setLighting(); save(); });
+$('day').addEventListener('click', () => { S.view = 'day'; setLighting(); save(); });
+$('reset').addEventListener('click', () => { if (current) frame(Litho.bounds(current.pos)); });
+$('light').addEventListener('input', () => { S.light = +$('light').value; if (mesh && current) { mesh.geometry.setAttribute('color', new THREE.BufferAttribute(colours(current.thick), 3)); } save(); });
+
+// ---------- print step ----------
+let finalMesh = null;
+const SHEET = {
+  common: [['Layer height', '0.12 mm'], ['First layer', '0.2 mm'], ['Walls', 'Enough to fill the thickest part (10 or more)'], ['Infill', '100%'], ['Outer wall speed', 'Slow, about 40 mm/s'], ['Filament', 'White PLA']],
+  bauble: [['Orientation', 'Neck down, as saved'], ['Supports', 'Tree, touching the build plate only'], ['Adhesion', '5 mm brim']],
+  flat: [['Orientation', 'Standing up, as saved'], ['Supports', 'None'], ['Adhesion', '5–8 mm brim, it is tall and thin']],
+  curved: [['Orientation', 'Standing up, as saved'], ['Supports', 'None'], ['Adhesion', '5 mm brim']],
+  cylinder: [['Orientation', 'Standing up, as saved'], ['Supports', 'None'], ['Adhesion', 'Brim optional']],
+};
+function sheetRows() { return [...SHEET.common, ...SHEET[S.shape]]; }
+function slug(s) { return (s || 'lithophane').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'lithophane'; }
+function fileName() { const size = S.shape === 'bauble' ? `${S.sphereD}mm` : S.shape === 'cylinder' ? `${S.cylDiam}x${S.cylHeight}mm` : `${S.width}x${S.height}mm`; return `${slug(S.name)}-${S.shape}-${size}`; }
+async function preparePrint() {
+  $('final-stats').replaceChildren(); $('final-checks').replaceChildren();
+  $('dl-status').textContent = img ? 'Building the full-detail model…' : '';
+  $('download').disabled = true;
+  renderSheet(); renderCap();
+  if (!img) { $('dl-status').textContent = 'Add a photo in step 1 first.'; return; }
+  await new Promise((r) => setTimeout(r, 30));
+  const t0 = performance.now(), g = grid(S.res), p = geo();
+  const m = Litho.build(S.shape, p, Litho.thickness(sample(g.cols, g.rows), p), g.cols, g.rows);
+  const pos = Litho.forPrint(S.shape, m.pos);
+  finalMesh = { pos, idx: m.idx };
+  const b = Litho.bounds(pos), vol = Litho.signedVolume(pos, m.idx) / 1000, closed = Litho.checkClosed(m.idx);
+  const tris = m.idx.length / 3;
+  const dl = (k, v) => { const dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = k; dd.textContent = v; return [dt, dd]; };
+  $('final-stats').replaceChildren(
+    ...dl('File', fileName() + '.stl'),
+    ...dl('Size on the bed', b.size.map((v) => v.toFixed(1)).join(' × ') + ' mm'),
+    ...dl('Triangles', (tris / 1e6).toFixed(2) + ' million'),
+    ...dl('STL file', Math.round((84 + 50 * tris) / 1e6) + ' MB'),
+    ...dl('Filament', `about ${Math.round(vol * 1.24)} g of PLA`));
+  const checks = [
+    [closed, closed ? 'Watertight, no holes in the model' : 'The model has open edges. Try different sizes and report it if it keeps happening.'],
+    [S.minT >= 0.6, `Thinnest part ${S.minT} mm`],
+    [b.size[0] <= 220 && b.size[1] <= 220 && b.size[2] <= 250, b.size[0] <= 220 && b.size[1] <= 220 && b.size[2] <= 250 ? 'Fits a 220 × 220 mm bed' : 'Bigger than a 220 × 220 × 250 mm printer: check it fits yours'],
+  ];
+  if (S.shape === 'bauble') checks.push([S.ledgeD > S.cylD, `Ledge for a ${S.ledgeD} mm end cap`]);
+  $('final-checks').replaceChildren(...checks.map(([ok, t]) => { const li = document.createElement('li'); li.textContent = t; if (!ok) li.className = 'bad'; return li; }));
+  $('download').disabled = false;
+  $('dl-status').textContent = `Built in ${((performance.now() - t0) / 1000).toFixed(1)} s.`;
+}
+function renderSheet() {
+  $('sheet').replaceChildren(...sheetRows().map(([k, v]) => { const tr = document.createElement('tr'), th = document.createElement('th'), td = document.createElement('td'); th.scope = 'row'; th.textContent = k; td.textContent = v; tr.append(th, td); return tr; }));
+}
+function renderCap() {
+  $('capcard').hidden = S.shape !== 'bauble';
+  const dl = (k, v) => { const dt = document.createElement('dt'), dd = document.createElement('dd'); dt.textContent = k; dd.textContent = v; return [dt, dd]; };
+  $('cap-sizes').replaceChildren(...dl('Ledge', `${S.ledgeD} mm`), ...dl('Neck', `${S.cylD} mm × ${S.cylH} mm, ${S.cylT} mm wall`), ...dl('Sphere', `${S.sphereD} mm`));
+  $('cap-link').href = `cap/#sphereD=${S.sphereD}&cylD=${S.cylD}&cylT=${S.cylT}&ledgeD=${S.ledgeD}&cylH=${S.cylH}`;
+}
+$('copy').addEventListener('click', async () => {
+  const text = `${KIND[S.shape]} lithophane: ${S.name}\n` + sheetRows().map(([k, v]) => `${k}: ${v}`).join('\n');
+  try { await navigator.clipboard.writeText(text); $('copy-status').textContent = 'Copied.'; } catch { $('copy-status').textContent = 'Copying is blocked here. Select the table and copy it instead.'; }
+});
+$('printsheet').addEventListener('click', () => window.print());
+
+// downloads: a plain file normally; inside a Claude page, files go through its save prompt as a zip
+let dlApi, dlTried = false;
+async function getDownloads() { if (!dlTried && window.claude && typeof window.claude.use === 'function') { try { dlApi = await window.claude.use('downloads'); } catch { dlApi = null; } dlTried = true; } return dlApi; }
+const CRC = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function zip(name, data) {
+  const enc = new TextEncoder().encode(name), u8 = new Uint8Array(data);
+  let c = 0xFFFFFFFF; for (let i = 0; i < u8.length; i++) c = CRC[(c ^ u8[i]) & 0xFF] ^ (c >>> 8); c = (c ^ 0xFFFFFFFF) >>> 0;
+  const lh = new DataView(new ArrayBuffer(30)); lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true); lh.setUint32(14, c, true); lh.setUint32(18, u8.length, true); lh.setUint32(22, u8.length, true); lh.setUint16(26, enc.length, true);
+  const cd = new DataView(new ArrayBuffer(46)); cd.setUint32(0, 0x02014b50, true); cd.setUint16(4, 20, true); cd.setUint16(6, 20, true); cd.setUint32(16, c, true); cd.setUint32(20, u8.length, true); cd.setUint32(24, u8.length, true); cd.setUint16(28, enc.length, true);
+  const end = new DataView(new ArrayBuffer(22)); end.setUint32(0, 0x06054b50, true); end.setUint16(8, 1, true); end.setUint16(10, 1, true); end.setUint32(12, 46 + enc.length, true); end.setUint32(16, 30 + enc.length + u8.length, true);
+  return new Blob([lh, enc, u8, cd, enc, end], { type: 'application/zip' });
+}
+$('download').addEventListener('click', async () => {
+  if (!finalMesh) return;
+  $('download').disabled = true; $('dl-status').textContent = 'Writing the STL…';
+  await new Promise((r) => setTimeout(r, 30));
+  const stl = Litho.toSTL(finalMesh.pos, finalMesh.idx), base = fileName();
+  const d = await getDownloads();
+  try {
+    if (d) { await d.save({ filename: base + '.zip', data: zip(base + '.stl', stl) }); $('dl-status').textContent = `Saved ${base}.zip (the STL is inside).`; }
+    else if (!window.claude) { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([stl], { type: 'model/stl' })); a.download = base + '.stl'; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 60000); $('dl-status').textContent = `Saved ${base}.stl`; }
+    else $('dl-status').textContent = 'Saving files is not available in this view.';
+  } catch (e) { $('dl-status').textContent = e && e.code === 'declined' ? 'Save cancelled.' : 'The file could not be saved.'; }
+  $('download').disabled = false;
+});
+
+// ---------- steps ----------
+const NEXT = { image: ['shape', 'Next: shape'], shape: ['print', 'Next: print'], print: [null, 'Start again'] };
+function go(s) {
+  step = s;
+  document.querySelectorAll('.steps button').forEach((b) => { if (b.dataset.step === s) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+  $('step-image').hidden = s !== 'image'; $('step-shape').hidden = s !== 'shape'; $('step-print').hidden = s !== 'print';
+  $('next').textContent = NEXT[s][1];
+  if (s === 'image') drawCrop();
+  if (s === 'shape') { resize(); if (dirty || !mesh) { $('busy').hidden = false; setTimeout(() => { rebuildPreview(); dirty = false; }, 30); } }
+  if (s === 'print') preparePrint();
+  window.scrollTo(0, 0);
+}
+document.querySelectorAll('.steps button').forEach((b) => b.addEventListener('click', () => go(b.dataset.step)));
+$('next').addEventListener('click', () => { const n = NEXT[step][0]; if (n) go(n); else go('image'); });
+
+// ---------- form events ----------
+NUM.forEach((k) => $(k).addEventListener('input', () => { const v = parseFloat($(k).value); if (isFinite(v)) { S[k] = v; updateShapeInfo(); drawCrop(); markDirty(); save(); } }));
+$('shape').addEventListener('change', () => { S.shape = $('shape').value; framed = false; updateShapeInfo(); drawCrop(); markDirty(); save(); });
+$('curve').addEventListener('change', () => { S.curve = $('curve').value; drawCrop(); markDirty(); save(); });
+$('res').addEventListener('change', () => { S.res = +$('res').value; updateShapeInfo(); markDirty(); save(); });
+['bright', 'contrast'].forEach((k) => $(k).addEventListener('input', () => { S[k] = +$(k).value; syncOut(); drawCrop(); markDirty(); save(); }));
+$('zoom').addEventListener('input', () => { S.zoom = +$('zoom').value; syncOut(); drawCrop(); updateShapeInfo(); markDirty(); save(); });
+$('invert').addEventListener('change', () => { S.invert = $('invert').checked; drawCrop(); markDirty(); save(); });
+$('asprint').addEventListener('change', () => { S.asPrint = $('asprint').checked; drawCrop(); save(); });
+$('proj-name').addEventListener('input', () => { S.name = $('proj-name').value; save(); });
+
+// ---------- a wrap image handed over from the wrap tool ----------
+function takeHandoff() {
+  return new Promise((res) => {
+    try {
+      const r = indexedDB.open('litho-studio', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('handoff');
+      r.onerror = () => res(null);
+      r.onsuccess = () => {
+        const db = r.result, tx = db.transaction('handoff', 'readwrite'), st = tx.objectStore('handoff'), g = st.get('wrap');
+        g.onsuccess = () => { st.delete('wrap'); res(g.result || null); };
+        g.onerror = () => res(null);
+      };
+    } catch { res(null); }
+  });
+}
+
+load(); toForm(); syncOut(); updateShapeInfo(); setLighting(); drawCrop();
+if (new URLSearchParams(location.hash.slice(1)).get('from') === 'wrap') {
+  takeHandoff().then((h) => {
+    if (!h || !h.blob) return;
+    S.shape = 'bauble'; if (h.sphereD) S.sphereD = h.sphereD; if (h.cylD) S.cylD = h.cylD;
+    toForm(); updateShapeInfo(); save();
+    const im = new Image(); im.onload = () => setImage(im); im.src = URL.createObjectURL(h.blob);
+    history.replaceState(null, '', location.pathname + '?shape=bauble');
+  });
+}
+</script>
+</body>
+</html>
