@@ -107,7 +107,28 @@ const Litho = (() => {
 
   // Shapes ------------------------------------------------------------------------------------------------------
   // T: thickness grid (cols × rows, row 0 = top of the image). Returns { pos, idx, thick, size, notes }.
+  // Overhang limiter: as printed, the wall may get thicker going up by at most OVERHANG_RISE mm per mm of height,
+  // about 45°, so a hard dark-over-light edge prints as a ramp instead of a ledge. It only ever thickens the plastic
+  // under such an edge (like a support), so the thin side darkens a little there; nothing else changes.
+  // Baubles print neck down, and row 0 is at the neck, so up the print is up the rows; the other shapes print
+  // standing, with row 0 at the top, so up the print is down the rows.
+  const OVERHANG_RISE = 1;
+  function limitOverhang(shape, p, T0, cols, rows) {
+    const T = Float32Array.from(T0), rise = OVERHANG_RISE * imageArea(shape, p).V / Math.max(1, rows - 1);
+    if (shape === 'bauble') {
+      for (let r = rows - 2; r >= 0; r--) for (let c = 0; c < cols; c++) {
+        const i = r * cols + c, above = T[i + cols] - rise; if (T[i] < above) T[i] = above;
+      }
+    } else {
+      for (let r = 1; r < rows; r++) for (let c = 0; c < cols; c++) {
+        const i = r * cols + c, above = T[i - cols] - rise; if (T[i] < above) T[i] = above;
+      }
+    }
+    return T;
+  }
+
   function build(shape, p, T, cols, rows) {
+    if (p.limitOverhang) T = limitOverhang(shape, p, T, cols, rows);
     if (shape === 'flat' || shape === 'curved') return panel(shape, p, T, cols, rows);
     if (shape === 'cylinder') return cylinder(p, T, cols, rows);
     return bauble(p, T, cols, rows);
