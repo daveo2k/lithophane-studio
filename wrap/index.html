@@ -1,0 +1,1153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{color-scheme:light;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font:14px/1.45 system-ui,-apple-system,sans-serif}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Lithophane Bauble Wrap · BadgerTech</title>
+<link rel="manifest" href="site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Jost:wght@400;500;600&display=swap">
+<link rel="icon" type="image/svg+xml" href="brand/badgertech-mark-small.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="brand/badgertech-mark-32.png">
+<link rel="apple-touch-icon" href="brand/badgertech-mark-192.png">
+<style>
+/* Layout: one wide "stage" showing the full 360° wrap, then photo cards beside a settings column. */
+/* BadgerTech theme, shared with the House Number Generator: cool workshop greys, 3000K LED amber. */
+:root {
+  --bg: #eef0f0;
+  --surface: #ffffff;
+  --sunk: #e2e6e7;
+  --ink: #1b1e21;
+  --muted: #5b646b;
+  --line: #d3d8db;
+  --accent: #b9741a;
+  --accent-soft: #fff4e0;
+  --accent-ink: #ffffff;
+  --warn: #7a4a07;
+  --font-display: "Jost", "Futura", "Avenir Next", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121416; --surface: #1a1d20; --sunk: #24282c; --ink: #e8eaeb; --muted: #9aa3a9;
+    --line: #2d3236; --accent: #f0b45a; --accent-soft: #3a2a12; --accent-ink: #1a1d20; --warn: #f6d39a;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121416; --surface: #1a1d20; --sunk: #24282c; --ink: #e8eaeb; --muted: #9aa3a9;
+  --line: #2d3236; --accent: #f0b45a; --accent-soft: #3a2a12; --accent-ink: #1a1d20; --warn: #f6d39a;
+  color-scheme: dark;
+}
+.brandbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 18px; border-bottom: 1px solid var(--line); }
+.brandbar a { display: inline-flex; border-radius: 6px; }
+.brandbar a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.brandbar img { display: block; height: 40px; width: auto; }
+.brandbar .lockup-dark { display: none; }
+.brandbar span { font-family: var(--font-mono); font-size: 12px; letter-spacing: .06em; color: var(--muted); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .brandbar .lockup-light { display: none; }
+  :root:not([data-theme="light"]) .brandbar .lockup-dark { display: block; }
+}
+:root[data-theme="dark"] .brandbar .lockup-light { display: none; }
+:root[data-theme="dark"] .brandbar .lockup-dark { display: block; }
+@media (max-width: 520px) { .brandbar img { height: 32px; } .brandbar span { display: none; } }
+.eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 20px 40px;
+}
+.wrap { max-width: 1480px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+h1, h2 { font-family: var(--font-display); font-weight: 500; margin: 0; text-wrap: balance; }
+h1 { font-size: clamp(28px, 4.4vw, 44px); line-height: 1.05; }
+h2 { font-size: 20px; }
+.mono, .num, input[type="number"] { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.top { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 12px 24px; }
+.top p { margin: 4px 0 0; color: var(--muted); max-width: 62ch; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { font-family: var(--font-mono); font-size: 12px; padding: 5px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); white-space: nowrap; }
+.chip b { color: var(--accent); font-weight: 500; }
+
+.stage { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 8px; }
+.stage-bar { display: flex; flex-wrap: wrap; gap: 8px 16px; align-items: center; justify-content: space-between; }
+.hint { color: var(--muted); font-size: 13px; }
+.toggles { display: flex; gap: 14px; flex-wrap: wrap; }
+.canvas-wrap { position: relative; width: 100%; line-height: 0; }
+#wrap { width: 100%; height: auto; display: block; border-radius: 6px; background: var(--sunk); touch-action: none; cursor: grab; }
+#wrap.seam { cursor: col-resize; }
+#wrap.dragging { cursor: grabbing; }
+.ruler { position: relative; height: 18px; font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+.ruler span { position: absolute; top: 2px; transform: translateX(-50%); white-space: nowrap; }
+.ruler span:first-child { transform: none; }
+.ruler span:last-child { transform: translateX(-100%); }
+
+.cols { display: grid; grid-template-columns: minmax(0, 1fr) 360px; gap: 18px; align-items: start; }
+@media (max-width: 960px) { .cols { grid-template-columns: minmax(0, 1fr); } }
+.panel { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; display: flex; flex-direction: column; gap: 12px; min-width: 0; }
+.panel-h { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.side { display: flex; flex-direction: column; gap: 18px; min-width: 0; }
+
+#cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 12px; }
+.card { border: 1px solid var(--line); border-radius: 10px; padding: 12px; display: flex; flex-direction: column; gap: 10px; background: var(--surface); min-width: 0; }
+.card.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.card-h { display: flex; gap: 10px; align-items: center; min-width: 0; }
+.card-h .num { flex: none; width: 24px; height: 24px; border-radius: 50%; display: grid; place-items: center; background: var(--ink); color: var(--bg); font-size: 12px; }
+.card.sel .card-h .num { background: var(--accent); color: var(--accent-ink); }
+.thumb { flex: none; width: 72px; height: 48px; border-radius: 4px; background: var(--sunk); }
+.nm { min-width: 0; display: flex; flex-direction: column; }
+.nm strong { font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.nm span { color: var(--muted); font-size: 12px; }
+.ctl { display: flex; flex-direction: column; gap: 4px; }
+.ctl > label, .lbl { font-family: var(--font-mono); font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); font-weight: 400; }
+.row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.row input[type="range"] { flex: 1 1 120px; min-width: 0; }
+.info { color: var(--muted); font-size: 12px; font-family: var(--font-mono); }
+.unit { color: var(--muted); font-size: 12px; }
+input[type="number"] { width: 82px; padding: 5px 7px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font-size: 13px; }
+input[type="number"].sm { width: 66px; }
+input[type="range"] { accent-color: var(--accent); width: 100%; }
+select { padding: 6px 8px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--ink); font: inherit; max-width: 100%; }
+.chk { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; user-select: none; }
+.chk input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+.chk.small { font-size: 12px; color: var(--muted); }
+input[type="number"]:disabled { opacity: 0.7; }
+.card-f { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between; }
+.acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.warn { color: var(--warn); font-size: 12px; font-weight: 500; }
+
+button { font: inherit; font-weight: 500; border-radius: 7px; border: 1px solid var(--line); background: var(--surface); color: var(--ink); padding: 6px 11px; cursor: pointer; }
+button:hover { border-color: var(--muted); }
+button.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); font-weight: 600; }
+button.primary:hover { filter: brightness(1.06); }
+button.icon { padding: 5px 8px; line-height: 0; }
+button:disabled { opacity: 0.45; cursor: default; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.add-card { border: 1.5px dashed var(--line); border-radius: 10px; display: grid; place-items: center; text-align: center; padding: 22px 14px; color: var(--muted); cursor: pointer; background: transparent; min-height: 140px; gap: 6px; }
+.add-card:hover { border-color: var(--accent); color: var(--ink); }
+.add-card strong { color: var(--ink); font-family: var(--font-display); font-size: 15px; }
+
+.seg { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.seg.four { grid-template-columns: repeat(4, minmax(0, 1fr)); max-width: 260px; }
+.count-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.card.empty { border-style: dashed; }
+.card.empty .thumb { background: repeating-linear-gradient(45deg, var(--sunk) 0 6px, var(--bg) 6px 12px); }
+p.warn { margin: 0; }
+.seg label { border: 1px solid var(--line); border-radius: 7px; padding: 7px 8px; text-align: center; cursor: pointer; font-weight: 500; font-size: 13px; }
+.seg input { position: absolute; opacity: 0; pointer-events: none; }
+.seg label:has(input:checked) { border-color: var(--ink); background: var(--ink); color: var(--bg); }
+.seg label:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+dl.stats { margin: 0; display: grid; grid-template-columns: auto 1fr; gap: 4px 12px; font-size: 13px; }
+dl.stats dt { color: var(--muted); }
+dl.stats dd { margin: 0; text-align: right; font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.fields { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.fields .ctl input[type="number"] { width: 100%; }
+.bauble-body { display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 14px 28px; align-items: start; }
+.bauble .fields { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
+.bauble-out { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.bauble dl.stats { display: flex; flex-wrap: wrap; gap: 6px 22px; }
+.bauble dl.stats div { display: flex; gap: 8px; align-items: baseline; }
+.bauble dl.stats dd { text-align: left; color: var(--accent); font-weight: 500; }
+@media (max-width: 760px) { .bauble-body { grid-template-columns: minmax(0, 1fr); } }
+.note { color: var(--muted); font-size: 12.5px; margin: 0; }
+#globe { width: 100%; max-width: 300px; aspect-ratio: 1; align-self: center; cursor: grab; touch-action: none; }
+.status { min-height: 1.2em; font-size: 13px; color: var(--muted); }
+.status.ok { color: var(--accent); }
+.status.err { color: var(--warn); }
+.btn-col { display: flex; flex-direction: column; gap: 8px; }
+.drop { position: fixed; inset: 0; background: color-mix(in srgb, var(--bg) 80%, transparent); display: grid; place-items: center; z-index: 20; pointer-events: none; }
+.drop div { border: 2px dashed var(--accent); border-radius: 16px; padding: 40px 56px; font-family: var(--font-display); font-size: 20px; background: var(--surface); }
+.sub-ctls { display: flex; flex-direction: column; gap: 10px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="brandbar">
+    <a href="./" aria-label="BadgerTech, Lithophane Bauble Wrap home">
+      <img class="lockup-light" src="brand/badgertech-lockup.svg" alt="BadgerTech" width="171" height="40">
+      <img class="lockup-dark" src="brand/badgertech-lockup-on-dark.svg" alt="BadgerTech" width="171" height="40">
+    </a>
+    <span>Lithophane Bauble Wrap</span>
+  </div>
+  <header class="top">
+    <div>
+      <p class="eyebrow">Lithophane bauble · build the wrap before printing</p>
+      <h1>Lithophane Bauble Wrap</h1>
+      <p>Lay photos side by side around a lithophane sphere. The wrap is always sized to the sphere and cylinder, so it fills the Classic LithophaneMaker Globe crop with “Fit Image to Sphere” ticked.</p>
+    </div>
+  </header>
+
+  <section class="panel bauble" aria-labelledby="h-bauble">
+    <h2 id="h-bauble">Bauble</h2>
+    <div class="bauble-body">
+      <div class="fields">
+        <div class="ctl"><label for="i-sphere">Sphere diameter (mm)</label><input type="number" id="i-sphere" min="20" max="400" step="1" value="100"></div>
+        <div class="ctl"><label for="i-cyl">Cylinder outer Ø (mm)</label><input type="number" id="i-cyl" min="0" max="200" step="0.5" value="36"></div>
+        <div class="ctl"><label for="i-h">Image height (px)</label><input type="number" id="i-h" min="200" max="6000" step="10" value="1600" disabled>
+          <label class="chk small"><input type="checkbox" id="i-auto" checked> Work out from sphere size</label></div>
+        <div class="ctl"><label for="i-span">Photos cover</label><select id="i-span"><option value="360">Full wrap (360°)</option><option value="180">Front half (180°)</option></select></div>
+        <div class="ctl"><label for="i-fill">Empty space and back half</label><select id="i-fill"><option value="white">White</option><option value="black">Black</option></select></div>
+        <div class="ctl"><label for="i-efade">Fade photo tops and bottoms</label><div class="row"><input type="number" id="i-efade" class="sm" min="0" max="40" step="1"><span class="unit">mm</span></div>
+          <span class="info">Where a photo stops short of the top or bottom of the wrap, it fades into the empty space instead of stopping at a hard edge, which would print as a ledge. 0 for a hard edge.</span></div>
+      </div>
+      <div class="bauble-out">
+        <dl class="stats" aria-live="polite">
+          <div><dt>Image size</dt><dd id="s-size"></dd></div>
+          <div><dt>Aspect ratio</dt><dd id="s-ratio"></dd></div>
+          <div><dt>Angular height</dt><dd id="s-height"></dd></div>
+          <div><dt>Cut by cylinder</dt><dd id="s-cut"></dd></div>
+          <div><dt>Equator length</dt><dd id="s-equator"></dd></div>
+          <div><dt>Pixel size at equator</dt><dd id="s-px"></dd></div>
+          <div><dt>Height needed for 0.25 mm/px</dt><dd id="s-min"></dd></div>
+        </dl>
+        <p class="note">The image height is worked out from the sphere size, keeping the same detail as the 100 mm bauble (36.25 px per mm of diameter), and the width follows from the height. Untick “Work out from sphere size” to type your own height. Angular height = 180° − asin(cylinder Ø ÷ sphere Ø), and the image is always 360° wide, so the site never crops the ends. Any height at or above the “needed” figure gives LithophaneMaker all the detail it uses; more only makes the file bigger. In 180° mode the image is still a full wrap, with your photos across the front and the back half left plain.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage" aria-label="Wrap preview">
+    <div class="stage-bar">
+      <span class="hint">Drag a photo to move it. Click a photo, then scroll to zoom. Drag a dashed seam to change widths.</span>
+      <div class="toggles">
+        <label class="chk"><input type="checkbox" id="t-guides" checked> Guides</label>
+        <label class="chk"><input type="checkbox" id="t-grey"> Greyscale</label>
+      </div>
+    </div>
+    <div class="canvas-wrap"><canvas id="wrap" width="1200" height="530" aria-label="The full wrap image"></canvas></div>
+    <div class="ruler" aria-hidden="true"><span style="left:0">0° back seam</span><span style="left:25%">90°</span><span style="left:50%">180° front</span><span style="left:75%">270°</span><span style="left:100%">360°</span></div>
+  </section>
+
+  <div class="cols">
+    <section class="panel" aria-labelledby="h-photos">
+      <div class="panel-h">
+        <h2 id="h-photos">Photos, left to right</h2>
+        <div class="acts">
+          <button id="b-equal" type="button">Equal widths</button>
+          <button id="b-add" type="button" class="primary">Add photos</button>
+        </div>
+      </div>
+      <div class="count-row">
+        <span class="lbl" id="n-photos-l">Number of photos</span>
+        <div class="seg four" role="radiogroup" aria-labelledby="n-photos-l">
+          <label><input type="radio" name="n-photos" value="1"><span>1</span></label>
+          <label><input type="radio" name="n-photos" value="2"><span>2</span></label>
+          <label><input type="radio" name="n-photos" value="3"><span>3</span></label>
+          <label><input type="radio" name="n-photos" value="4"><span>4</span></label>
+        </div>
+      </div>
+      <p class="note" id="sample-note">These are sample pictures. Add your own photos and they take the samples' places.</p>
+      <p class="warn" id="photo-msg" role="status" hidden></p>
+      <div id="cards"></div>
+    </section>
+
+    <aside class="side">
+      <section class="panel" aria-labelledby="h-fades">
+        <h2 id="h-fades">Fades between photos</h2>
+        <label class="chk"><input type="checkbox" id="f-same" checked> Same fade at every seam</label>
+        <div class="ctl" id="f-pick-wrap" hidden><label for="f-pick">Seam</label><select id="f-pick"></select></div>
+        <div class="ctl">
+          <span class="lbl" id="f-type-l">Style</span>
+          <div class="seg" role="radiogroup" aria-labelledby="f-type-l">
+            <label><input type="radio" name="f-type" value="crossfade" checked><span>Crossfade</span></label>
+            <label><input type="radio" name="f-type" value="white"><span>Fade to white</span></label>
+            <label><input type="radio" name="f-type" value="black"><span>Fade to black</span></label>
+            <label><input type="radio" name="f-type" value="cut"><span>Hard cut</span></label>
+          </div>
+        </div>
+        <div class="sub-ctls" id="f-soft">
+          <div class="ctl"><label for="f-width">Fade width</label>
+            <div class="row"><input type="range" id="f-width" min="0" max="600" step="1"><input type="number" id="f-width-n" class="sm" min="0" max="1200" step="1"><span class="unit">px</span></div>
+            <span class="info" id="f-width-info"></span>
+          </div>
+          <div class="ctl"><label for="f-curve">Blend curve</label>
+            <select id="f-curve"><option value="smooth">S-curve (soft start and end)</option><option value="linear">Linear</option><option value="steep">Steep S-curve (shorter overlap)</option></select>
+          </div>
+        </div>
+        <div class="ctl"><label for="f-shape">Seam shape</label>
+          <select id="f-shape"><option value="straight">Straight</option><option value="wave">Wavy</option><option value="slant">Slanted</option></select>
+        </div>
+        <div class="sub-ctls" id="f-wave" hidden>
+          <div class="ctl"><label for="f-amp">Wave depth</label><div class="row"><input type="range" id="f-amp" min="5" max="250" step="1"><span class="info" id="f-amp-v"></span></div></div>
+          <div class="ctl"><label for="f-waves">Waves top to bottom</label><div class="row"><input type="range" id="f-waves" min="0.5" max="8" step="0.5"><span class="info" id="f-waves-v"></span></div></div>
+        </div>
+        <div class="sub-ctls" id="f-slant" hidden>
+          <div class="ctl"><label for="f-slantr">Slant (top vs bottom)</label><div class="row"><input type="range" id="f-slantr" min="-600" max="600" step="5"><span class="info" id="f-slant-v"></span></div></div>
+        </div>
+      </section>
+
+      <section class="panel" aria-labelledby="h-globe">
+        <div class="panel-h">
+          <h2 id="h-globe">On the bauble</h2>
+          <select id="g-mode" aria-label="Preview style"><option value="lit">Lit print</option><option value="photo">Photo colours</option></select>
+        </div>
+        <canvas id="globe" width="600" height="600" aria-label="The wrap shown on a sphere, hanging with the cylinder at the top"></canvas>
+        <p class="note">Hanging with the cylinder at the top. Drag to turn it. The bands near the top and bottom of the wrap get squeezed on the sphere, so keep faces near the equator line.</p>
+      </section>
+
+      <section class="panel" aria-labelledby="h-save">
+        <h2 id="h-save">Save</h2>
+        <label class="chk"><input type="checkbox" id="s-grey"> Save in greyscale</label>
+        <div class="btn-col">
+          <button type="button" class="primary" id="b-save-rot">Save upload copy (rotated 180°)</button>
+          <button type="button" id="b-save-up">Save upright copy</button>
+          <button type="button" class="primary" id="b-studio" hidden>Send to Lithophane Studio</button>
+        </div>
+        <div class="status" id="save-status" role="status"></div>
+        <p class="note">Upload the rotated copy. LithophaneMaker puts the cylinder at the bottom, so turning the image over makes it upright when the bauble hangs from its cylinder.</p>
+      </section>
+    </aside>
+  </div>
+</div>
+<input type="file" id="file" accept="image/*" multiple hidden>
+<div class="drop" id="drop" hidden><div>Drop photos to add them</div></div>
+
+<script>
+(() => {
+'use strict';
+const $ = s => document.querySelector(s);
+const DEF_SEAM = () => ({ type: 'crossfade', width: 145, curve: 'smooth', shape: 'straight', amp: 40, waves: 3, slant: 150 });
+const state = {
+  sphereD: 100, cylOD: 36, outH: 1600, autoH: true, fill: 'white', span: 360, edgeFade: 8,
+  guides: true, greyView: false, greySave: false,
+  sameSeams: true, seamSel: 0, seams: [], panels: [], sel: 0, globeMode: 'lit'
+};
+let uid = 1;
+const curves = { linear: t => t, smooth: t => t * t * (3 - 2 * t), steep: t => t * t * t * (t * (t * 6 - 15) + 10) };
+const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+const mod = (a, n) => ((a % n) + n) % n;
+
+/* ---------- Geometry ---------- */
+const PX_PER_MM_DIA = 36.25;
+function geom() {
+  const D = clamp(+state.sphereD || 100, 10, 1000);
+  const c = clamp(+state.cylOD || 0, 0, D * 0.98);
+  const cut = Math.asin(c / D) * 180 / Math.PI;
+  const height = 180 - cut;
+  // Auto: keep the detail of the approved 100 mm bauble (3625 px around the equator,
+  // 36.25 px per mm of diameter), so a bigger sphere gets a proportionally bigger image.
+  const autoH = D * PX_PER_MM_DIA * height / 360;
+  const H = Math.round(clamp(state.autoH ? autoH : (+state.outH || 1600), 200, 6000));
+  const W = Math.round(H * 360 / height);
+  return { D, c, cut, height, H, W };
+}
+// Render plan: the photo panels laid across the photo area (all 360°, or the front 180°).
+// In 180° mode a plain "back half" item (null) follows the photos, and the whole
+// strip is shifted a quarter turn so the photos sit centred on the front.
+function plan(W) {
+  const ps = state.panels, N = ps.length, half = state.span === 180;
+  const span = half ? Math.round(W / 2) : W;
+  const tot = ps.reduce((a, p) => a + p.f, 0) || 1;
+  const S = [0]; let acc = 0;
+  ps.forEach(p => { acc += p.f; S.push(Math.round(span * acc / tot)); });
+  if (N) S[N] = span;
+  const items = ps.slice();
+  let seams = state.seams.slice(0, N);
+  if (half && N) { items.push(null); S.push(W); seams = seams.concat([state.seams[0]]); }
+  return { S, items, seams, span, N, shift: half ? Math.round(W / 4) : 0 };
+}
+// Seam j is the left edge of item j; seam 0 is where the strip meets itself.
+function seamGeo(j, P, k) {
+  const S = P.S, N = P.items.length, s = P.seams[j];
+  const l = (j - 1 + N) % N;
+  const wl = S[l + 1] - S[l], wr = S[j + 1] - S[j];
+  const lim = Math.min(wl, wr);
+  let A = s.shape === 'wave' ? s.amp : s.shape === 'slant' ? Math.abs(s.slant) / 2 : 0;
+  A = Math.min(A, lim * 0.25);
+  const F = s.type === 'cut' ? 0 : Math.max(0, Math.min(s.width, lim * 0.9 - 2 * A));
+  const Ak = A * k, waves = s.waves, sign = s.slant >= 0 ? 1 : -1;
+  const off = s.shape === 'wave' ? (yf => Ak * Math.sin(2 * Math.PI * waves * yf))
+            : s.shape === 'slant' ? (yf => sign * Ak * 2 * (yf - 0.5)) : (() => 0);
+  return { type: s.type, F: F * k, A: Ak, Ffull: F, curve: curves[s.curve] || curves.smooth, off };
+}
+const baseScale = (p, g) => p.zoom * g.H / p.ih;   // output px per source px at full size
+
+/* ---------- Compositing ---------- */
+// Fade a photo's top and bottom edges into the fill colour, where the photo stops short of the wrap's top or bottom.
+// y0 is the photo's top row in this strip and h its height, both in strip px; F is the fade height in px. The fade
+// runs inside the photo, so the photo's own edge rows blend fully into the fill and no hard line is left.
+function fadeEdges(d, sw, H, y0, h, F, fillV) {
+  const y1 = y0 + h;
+  F = Math.min(F, h / 2);
+  if (F < 1) return;
+  const ease = curves.smooth;
+  const blendRow = (y, a) => {
+    const b = 1 - a, base = y * sw * 4;
+    for (let i = base, e = base + sw * 4; i < e; i += 4) {
+      d[i] = d[i] * a + fillV * b; d[i + 1] = d[i + 1] * a + fillV * b; d[i + 2] = d[i + 2] * a + fillV * b;
+    }
+  };
+  if (y0 > 0.5) for (let y = Math.max(0, Math.floor(y0)); y < Math.min(H, Math.ceil(y0 + F)); y++) blendRow(y, ease(clamp((y + 0.5 - y0) / F, 0, 1)));
+  if (y1 < H - 0.5) for (let y = Math.max(0, Math.floor(y1 - F)); y < Math.min(H, Math.ceil(y1)); y++) blendRow(y, ease(clamp((y1 - y - 0.5) / F, 0, 1)));
+}
+function composite(kReq) {
+  const g = geom();
+  const W = Math.max(1, Math.round(g.W * kReq)), H = Math.max(1, Math.round(g.H * kReq));
+  const k = W / g.W;
+  const out = new ImageData(W, H), o = out.data;
+  const P = plan(g.W), S = P.S.map(v => v * k), N = P.items.length, sh = Math.round(P.shift * k);
+  if (!state.panels.length) { o.fill(255); return { img: out, W, H, k, S, sg: [], g, P, sh }; }
+  const sg = P.items.map((_, j) => seamGeo(j, P, k));
+  const fillV = state.fill === 'black' ? 0 : 255;
+  const sc0 = p => baseScale(p, g) * k;
+  const pxPerMm = g.H / (Math.PI * g.D * g.height / 360);   // full-size image px per mm of sphere surface, top to bottom
+  const strips = P.items.map((p, i) => {
+    const sL = sg[i], sR = sg[(i + 1) % N];
+    const ox = Math.floor(S[i] - sL.F / 2 - sL.A - 2);
+    const sw = Math.ceil(S[i + 1] + sR.F / 2 + sR.A + 2) - ox;
+    const cv = document.createElement('canvas'); cv.width = sw; cv.height = H;
+    const ctx = cv.getContext('2d', { willReadFrequently: true });
+    ctx.fillStyle = fillV ? '#fff' : '#000'; ctx.fillRect(0, 0, sw, H);
+    if (p && p.src) {
+      const sc = baseScale(p, g) * k, m = p.mirror ? -1 : 1;
+      const Xc = (S[i] + S[i + 1]) / 2 - ox, Yc = H / 2;
+      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
+      ctx.setTransform(m * sc, 0, 0, sc, Xc - m * sc * p.cx, Yc - sc * p.cy);
+      ctx.drawImage(p.src, 0, 0);
+    }
+    const d = ctx.getImageData(0, 0, sw, H).data;
+    if (p && p.src && state.edgeFade > 0) fadeEdges(d, sw, H, H / 2 - sc0(p) * p.cy, sc0(p) * p.ih, state.edgeFade * pxPerMm * k, fillV);
+    return { ox, sw, d };
+  });
+  const zs = new Array(N), ze = new Array(N), cc = new Array(N);
+  for (let y = 0; y < H; y++) {
+    const yf = (y + 0.5) / H, row = y * W * 4;
+    for (let j = 0; j < N; j++) {
+      const c = (j === 0 ? 0 : S[j]) + sg[j].off(yf);
+      cc[j] = c; zs[j] = Math.round(c - sg[j].F / 2); ze[j] = Math.round(c + sg[j].F / 2);
+    }
+    for (let p = 0; p < N; p++) {
+      const st = strips[p], d = st.d, rb = y * st.sw * 4, last = st.sw - 1;
+      const end = p + 1 < N ? zs[p + 1] : zs[0] + W;
+      for (let X = ze[p]; X < end; X++) {
+        let lx = X - st.ox; lx = lx < 0 ? 0 : lx > last ? last : lx;
+        const si = rb + lx * 4, di = row + mod(X + sh, W) * 4;
+        o[di] = d[si]; o[di + 1] = d[si + 1]; o[di + 2] = d[si + 2]; o[di + 3] = 255;
+      }
+    }
+    for (let j = 0; j < N; j++) {
+      if (ze[j] <= zs[j]) continue;
+      const s = sg[j], F = s.F, z0 = cc[j] - F / 2, cv = s.curve;
+      const Ls = strips[(j - 1 + N) % N], Rs = strips[j];
+      const lshift = j === 0 ? W : 0;
+      const Ld = Ls.d, Rd = Rs.d, lrb = y * Ls.sw * 4, rrb = y * Rs.sw * 4;
+      const K = s.type === 'black' ? 0 : 255;
+      for (let X = zs[j]; X < ze[j]; X++) {
+        const t = clamp((X + 0.5 - z0) / F, 0, 1);
+        const li = lrb + clamp(X + lshift - Ls.ox, 0, Ls.sw - 1) * 4;
+        const ri = rrb + clamp(X - Rs.ox, 0, Rs.sw - 1) * 4;
+        const di = row + mod(X + sh, W) * 4;
+        if (s.type === 'crossfade') {
+          const a = cv(t), b = 1 - a;
+          o[di] = Ld[li] * b + Rd[ri] * a; o[di + 1] = Ld[li + 1] * b + Rd[ri + 1] * a; o[di + 2] = Ld[li + 2] * b + Rd[ri + 2] * a;
+        } else {
+          let a, src, si;
+          if (t < 0.5) { a = cv(t * 2); src = Ld; si = li; } else { a = cv((1 - t) * 2); src = Rd; si = ri; }
+          const b = 1 - a;
+          o[di] = src[si] * b + K * a; o[di + 1] = src[si + 1] * b + K * a; o[di + 2] = src[si + 2] * b + K * a;
+        }
+        o[di + 3] = 255;
+      }
+    }
+  }
+  return { img: out, W, H, k, S, sg, g, P, sh };
+}
+function greyCopy(img) {
+  const c = new ImageData(img.width, img.height), s = img.data, d = c.data;
+  for (let i = 0; i < s.length; i += 4) {
+    const L = (s[i] * 299 + s[i + 1] * 587 + s[i + 2] * 114) / 1000;
+    d[i] = d[i + 1] = d[i + 2] = L; d[i + 3] = 255;
+  }
+  return c;
+}
+
+/* ---------- Main preview ---------- */
+const wrapCv = $('#wrap');
+let cache = null, pending = false;
+function requestDraw() {
+  if (pending) return; pending = true;
+  requestAnimationFrame(() => { pending = false; draw(); scheduleSave(); });
+}
+function draw() {
+  const g = geom();
+  const cssW = wrapCv.parentElement.clientWidth || 1200;
+  const k = Math.min(1, cssW * Math.min(2, window.devicePixelRatio || 1) / g.W);
+  cache = composite(k);
+  if (wrapCv.width !== cache.W) wrapCv.width = cache.W;
+  if (wrapCv.height !== cache.H) wrapCv.height = cache.H;
+  const ctx = wrapCv.getContext('2d');
+  ctx.putImageData(state.greyView ? greyCopy(cache.img) : cache.img, 0, 0);
+  if (state.guides) drawGuides(ctx, cache);
+  buildTex(); drawGlobe(); updateStats(); syncCards();
+}
+function drawGuides(ctx, r) {
+  const { W, H, S, sg, g, P, sh } = r, N = state.panels.length, M = P.items.length, u = W / 1000;
+  ctx.save();
+  // squeeze bands: rows where the sphere's circumference is under 70% of the equator
+  const yAt = phi => (phi - g.cut) / g.height * H;
+  const yTop = yAt(44.4), yBot = yAt(135.6);
+  ctx.fillStyle = 'rgba(20,16,10,0.28)';
+  if (yTop > 0) ctx.fillRect(0, 0, W, yTop);
+  if (yBot < H) ctx.fillRect(0, yBot, W, H - yBot);
+  const fs = Math.max(10, 11 * u * 1.4);
+  ctx.font = `500 ${fs}px "IBM Plex Mono", ui-monospace, monospace`;
+  ctx.textBaseline = 'bottom';
+  const label = (txt, x, y) => { ctx.lineWidth = 3; ctx.strokeStyle = 'rgba(0,0,0,0.55)'; ctx.strokeText(txt, x, y); ctx.fillStyle = '#fff'; ctx.fillText(txt, x, y); };
+  const eq = yAt(90);
+  ctx.setLineDash([6 * u, 5 * u]); ctx.lineWidth = Math.max(1, 1.2 * u);
+  ctx.strokeStyle = 'rgba(255,255,255,0.75)';
+  ctx.beginPath(); ctx.moveTo(0, eq); ctx.lineTo(W, eq); ctx.stroke();
+  label('equator', 6 * u, eq - 3 * u);
+  if (yTop > fs * 1.4) label('squeezed over 30% on the bauble', 6 * u, yTop - 3 * u);
+  if (yBot < H - 4) label('squeezed over 30%', 6 * u, H - 4 * u);
+  // fade zones and seam lines
+  if (sh) {   // 180° mode: label the plain back half
+    ctx.textBaseline = 'middle';
+    label('plain back half', 8 * u, H * 0.9);
+    ctx.textAlign = 'right'; label('plain back half', W - 8 * u, H * 0.9); ctx.textAlign = 'left';
+    ctx.textBaseline = 'bottom';
+  }
+  for (let j = 0; j < M; j++) {
+    const s = sg[j], b = mod(S[j] + sh, W);
+    const edge = j === 0 || P.items[j] === null || P.items[(j - 1 + M) % M] === null;
+    const xs = b === 0 ? [0, W] : [b];
+    for (const base of xs) {
+      if (s.F > 0) {
+        ctx.setLineDash([]); ctx.fillStyle = 'rgba(240,162,62,0.14)';
+        ctx.beginPath();
+        for (let y = 0; y <= H; y += 4) ctx.lineTo(base + s.off(y / H) - s.F / 2, y);
+        for (let y = H; y >= 0; y -= 4) ctx.lineTo(base + s.off(y / H) + s.F / 2, y);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.setLineDash([7 * u, 6 * u]); ctx.lineWidth = Math.max(1.5, 2 * u);
+      ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+      ctx.beginPath(); for (let y = 0; y <= H; y += 4) ctx.lineTo(base + s.off(y / H), y); ctx.stroke();
+      ctx.strokeStyle = edge ? 'rgba(255,255,255,0.6)' : '#fff'; ctx.lineDashOffset = 6 * u;
+      ctx.beginPath(); for (let y = 0; y <= H; y += 4) ctx.lineTo(base + s.off(y / H), y); ctx.stroke();
+      ctx.lineDashOffset = 0;
+    }
+  }
+  // panel numbers + selection
+  ctx.setLineDash([]); ctx.textBaseline = 'middle'; ctx.textAlign = 'center';
+  for (let p = 0; p < N; p++) {
+    const cx = mod((S[p] + S[p + 1]) / 2 + sh, W), rr = 13 * u * 1.3;
+    const sel = p === state.sel;
+    ctx.fillStyle = sel ? '#f2a93b' : 'rgba(20,18,15,0.75)';
+    ctx.beginPath(); ctx.arc(cx, rr + 8 * u, rr, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = '#fff'; ctx.font = `600 ${rr * 1.1}px "Jost", system-ui, sans-serif`;
+    ctx.fillText(String(p + 1), cx, rr + 8 * u + 1);
+    if (sel) {
+      ctx.strokeStyle = '#f2a93b'; ctx.lineWidth = Math.max(2, 3 * u);
+      ctx.strokeRect(S[p] + sh + 1.5, 1.5, S[p + 1] - S[p] - 3, H - 3);
+    }
+  }
+  ctx.restore();
+}
+
+/* ---------- Canvas interaction ---------- */
+let drag = null;
+function cvPoint(e) {
+  const r = wrapCv.getBoundingClientRect();
+  return { x: (e.clientX - r.left) * wrapCv.width / r.width, y: (e.clientY - r.top) * wrapCv.height / r.height, px: wrapCv.width / r.width };
+}
+function hit(pt) {
+  if (!cache || !state.panels.length) return null;
+  const { S, sg, H, W, sh } = cache, N = state.panels.length;
+  const X = mod(pt.x - sh, W);
+  for (let j = 1; j < N; j++) {
+    const x = S[j] + sg[j].off(pt.y / H);
+    if (Math.abs(X - x) < 9 * pt.px) return { seam: j };
+  }
+  for (let p = 0; p < N; p++) if (X >= S[p] && X < S[p + 1]) return { panel: p };
+  return sh ? null : { panel: N - 1 };
+}
+wrapCv.addEventListener('pointermove', e => {
+  const pt = cvPoint(e);
+  if (!drag) { const h = hit(pt); wrapCv.classList.toggle('seam', !!(h && h.seam)); return; }
+  const g = geom(), k = cache.k;
+  if (drag.seam) {
+    const j = drag.seam, S0 = drag.P.S, span = drag.P.span, minW = 60;
+    const X = clamp(mod(pt.x - cache.sh, cache.W) / k, S0[j - 1] + minW, S0[j + 1] - minW);
+    const tot = state.panels.reduce((a, p) => a + p.f, 0);
+    state.panels[j - 1].f = (X - S0[j - 1]) / span * tot;
+    state.panels[j].f = (S0[j + 1] - X) / span * tot;
+  } else {
+    const p = state.panels[drag.panel];
+    if (!p.src) return;
+    const sc = baseScale(p, g) * k, m = p.mirror ? -1 : 1;
+    p.cx = drag.cx - (pt.x - drag.x) / (m * sc);
+    p.cy = drag.cy - (pt.y - drag.y) / sc;
+  }
+  requestDraw();
+});
+wrapCv.addEventListener('pointerdown', e => {
+  const pt = cvPoint(e), h = hit(pt);
+  if (!h) return;
+  wrapCv.setPointerCapture(e.pointerId);
+  wrapCv.classList.add('dragging');
+  if (h.seam) drag = { seam: h.seam, P: plan(geom().W) };
+  else {
+    const p = state.panels[h.panel];
+    if (state.sel !== h.panel) { state.sel = h.panel; markSelected(); requestDraw(); }
+    drag = { panel: h.panel, x: pt.x, y: pt.y, cx: p.cx, cy: p.cy };
+  }
+});
+const endDrag = () => { drag = null; wrapCv.classList.remove('dragging'); };
+wrapCv.addEventListener('pointerup', endDrag);
+wrapCv.addEventListener('pointercancel', endDrag);
+wrapCv.addEventListener('wheel', e => {
+  const pt = cvPoint(e), h = hit(pt);
+  if (!h || h.panel === undefined || h.panel !== state.sel || !state.panels[h.panel].src) return;
+  e.preventDefault();
+  const g = geom(), k = cache.k, p = state.panels[h.panel], m = p.mirror ? -1 : 1;
+  const S = cache.S, Xc = (S[h.panel] + S[h.panel + 1]) / 2 + cache.sh, Yc = cache.H / 2;
+  const sc = baseScale(p, g) * k;
+  const u = p.cx + (pt.x - Xc) / (m * sc), v = p.cy + (pt.y - Yc) / sc;
+  p.zoom = clamp(p.zoom * Math.exp(-e.deltaY * 0.0015), 0.2, 6);
+  const sc2 = baseScale(p, g) * k;
+  p.cx = u - (pt.x - Xc) / (m * sc2); p.cy = v - (pt.y - Yc) / sc2;
+  requestDraw();
+}, { passive: false });
+
+/* ---------- Photos ---------- */
+function newPanel(src, iw, ih, name, extra) {
+  return Object.assign({ id: uid++, src, iw, ih, name, f: 1, zoom: 1, cx: iw / 2, cy: ih / 2, mirror: false, blob: null, sample: null }, extra || {});
+}
+const MAX_PHOTOS = 4;
+const emptyPanel = f => newPanel(null, 1000, 1000, 'Empty slot', { f: f || 1 });
+const avgF = () => { const n = state.panels.length; return n ? state.panels.reduce((a, p) => a + p.f, 0) / n : 1; };
+function setCount(n) {
+  n = clamp(Math.round(n), 1, MAX_PHOTOS);
+  const ps = state.panels;
+  while (ps.length < n) ps.push(emptyPanel(avgF()));
+  while (ps.length > n) {
+    const e = ps.map(p => !p.src).lastIndexOf(true);   // drop empty slots first
+    ps.splice(e >= 0 ? e : ps.length - 1, 1);
+  }
+  syncSeams(); renderCards(); renderSeamPicker(); requestDraw();
+}
+function fitPanel(i) {
+  const g = geom(), S = plan(g.W).S, p = state.panels[i];
+  if (!p || !p.src) return;
+  const need = (S[i + 1] - S[i] + (state.seams[i] ? state.seams[i].width : 0)) * p.ih / (g.H * p.iw);
+  p.zoom = Math.max(1, need); p.cx = p.iw / 2; p.cy = p.ih / 2;
+}
+function syncSeams() {
+  const N = state.panels.length;
+  while (state.seams.length < N) state.seams.push(Object.assign({}, state.seams[0] || DEF_SEAM()));
+  state.seams.length = N;
+  if (state.seamSel >= N) state.seamSel = 0;
+  if (state.sel >= N) state.sel = Math.max(0, N - 1);
+}
+async function loadBlob(blob) {
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  img.src = url;
+  await img.decode();
+  let src = img, iw = img.naturalWidth, ih = img.naturalHeight;
+  const mx = 4200;
+  if (Math.max(iw, ih) > mx) {
+    const s = mx / Math.max(iw, ih), c = document.createElement('canvas');
+    c.width = Math.round(iw * s); c.height = Math.round(ih * s);
+    const cx = c.getContext('2d'); cx.imageSmoothingQuality = 'high'; cx.drawImage(img, 0, 0, c.width, c.height);
+    src = c; iw = c.width; ih = c.height;
+  }
+  return { src, iw, ih };
+}
+function photoMsg(msg) { const n = $('#photo-msg'); n.textContent = msg || ''; n.hidden = !msg; }
+// Fills the given slot first, then any other empty slots, then adds slots up to MAX_PHOTOS.
+async function addFiles(files, slot) {
+  files = [...files].filter(f => f.type.startsWith('image/'));
+  if (!files.length) return;
+  // Samples become empty slots of the same widths, so the layout is kept.
+  if (state.panels.length && state.panels.every(p => p.sample !== null)) state.panels = state.panels.map(p => emptyPanel(p.f));
+  const targets = [];
+  if (slot !== undefined && state.panels[slot] && !state.panels[slot].src) targets.push(slot);
+  state.panels.forEach((p, i) => { if (!p.src && !targets.includes(i)) targets.push(i); });
+  const added = [], failed = []; let skipped = 0;
+  for (const f of files) {
+    let i = targets.shift();
+    if (i === undefined) {
+      if (state.panels.length >= MAX_PHOTOS) { skipped++; continue; }
+      state.panels.push(emptyPanel(avgF())); i = state.panels.length - 1;
+    }
+    try {
+      const { src, iw, ih } = await loadBlob(f);
+      state.panels[i] = newPanel(src, iw, ih, f.name || 'Pasted photo', { blob: f, f: state.panels[i].f });
+      added.push(i);
+    } catch (err) { failed.push(f.name || 'photo'); }
+  }
+  syncSeams();
+  added.forEach(fitPanel);
+  if (added.length) state.sel = added[0];
+  const msgs = [];
+  if (skipped) msgs.push(`The wrap holds up to ${MAX_PHOTOS} photos, so ${skipped} ${skipped === 1 ? 'was' : 'were'} not added. Remove a photo to make room.`);
+  if (failed.length) msgs.push(`Could not read ${failed.join(', ')}. Try a JPEG or PNG.`);
+  photoMsg(msgs.join(' '));
+  renderCards(); renderSeamPicker(); requestDraw();
+}
+
+function makeSample(i) {
+  const c = document.createElement('canvas'); c.width = 1200; c.height = 1500;
+  const x = c.getContext('2d');
+  const bgs = [['#b9c6d8', '#dfe5ee'], ['#c49a62', '#e3c495'], ['#5fb3ad', '#a7dcd6']][i % 3];
+  const gr = x.createLinearGradient(0, 0, 0, 1500); gr.addColorStop(0, bgs[1]); gr.addColorStop(1, bgs[0]);
+  x.fillStyle = gr; x.fillRect(0, 0, 1200, 1500);
+  const people = [[[380, 640, 1], [800, 600, 1.08]], [[300, 760, 0.92], [620, 560, 1.12], [930, 720, 0.95]], [[400, 600, 1.05], [820, 640, 1]]][i % 3];
+  const tones = ['#3a3a40', '#2c3b31', '#4a3b4f', '#30343c'];
+  people.forEach(([px, py, s], n) => {
+    x.fillStyle = tones[(n + i) % 4];
+    x.beginPath(); x.ellipse(px, py + 560 * s, 250 * s, 330 * s, 0, Math.PI, 0); x.lineTo(px + 250 * s, 1500); x.lineTo(px - 250 * s, 1500); x.fill();
+    x.fillStyle = '#e8c4a8'; x.fillRect(px - 45 * s, py + 120 * s, 90 * s, 130 * s);
+    x.beginPath(); x.ellipse(px, py, 125 * s, 150 * s, 0, 0, Math.PI * 2); x.fill();
+    x.fillStyle = ['#e7cf8a', '#4a3324', '#c99a5b'][(n + i) % 3];
+    x.beginPath(); x.ellipse(px, py - 60 * s, 135 * s, 105 * s, 0, Math.PI, 0); x.fill();
+    x.fillStyle = '#2a2420';
+    x.beginPath(); x.arc(px - 45 * s, py + 5 * s, 11 * s, 0, 7); x.arc(px + 45 * s, py + 5 * s, 11 * s, 0, 7); x.fill();
+    x.strokeStyle = '#a5524a'; x.lineWidth = 9 * s; x.beginPath(); x.arc(px, py + 50 * s, 42 * s, 0.2, Math.PI - 0.2); x.stroke();
+  });
+  x.fillStyle = 'rgba(255,255,255,0.85)'; x.font = '600 64px system-ui, sans-serif'; x.textAlign = 'center';
+  x.fillText(`Sample photo ${i + 1}`, 600, 1420);
+  return newPanel(c, 1200, 1500, `Sample photo ${i + 1}`, { sample: i });
+}
+function loadSamples() {
+  state.panels = [0, 1, 2].map(makeSample);
+  [1184, 1378, 1063].forEach((w, i) => state.panels[i].f = w);
+  state.seams = [DEF_SEAM(), DEF_SEAM(), DEF_SEAM()];
+  syncSeams();
+  state.panels.forEach((_, i) => fitPanel(i));
+  state.panels[1].zoom = 1.05; state.panels[2].zoom = 1.12;
+}
+
+const ICON = {
+  left: '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M10 3 5 8l5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+  right: '<svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="m6 3 5 5-5 5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+};
+function renderCards() {
+  const box = $('#cards'); box.innerHTML = '';
+  $('#sample-note').hidden = !state.panels.length || !state.panels.every(p => p.sample !== null);
+  state.panels.forEach((p, i) => {
+    const el = document.createElement('article');
+    el.className = 'card' + (i === state.sel ? ' sel' : ''); el.dataset.i = i;
+    const id = p.id;
+    const moveBtns = `<button type="button" class="icon" data-a="left" aria-label="Move left" ${i === 0 ? 'disabled' : ''}>${ICON.left}</button>
+          <button type="button" class="icon" data-a="right" aria-label="Move right" ${i === state.panels.length - 1 ? 'disabled' : ''}>${ICON.right}</button>`;
+    if (!p.src) {
+      el.classList.add('empty');
+      el.innerHTML = `
+      <header class="card-h"><span class="num">${i + 1}</span><div class="thumb"></div>
+        <div class="nm"><strong>Empty slot</strong><span>Shows as ${state.fill} until you add a photo</span></div></header>
+      <div class="ctl"><label for="w-${id}">Width</label>
+        <div class="row"><input type="number" id="w-${id}" data-k="w" min="60" step="1"><span class="unit">px</span><span class="info" data-info="w"></span></div></div>
+      <div class="card-f">
+        <button type="button" class="primary" data-a="fill">Add photo</button>
+        <div class="acts">${moveBtns}<button type="button" data-a="del" ${state.panels.length === 1 ? 'disabled' : ''}>Remove slot</button></div>
+      </div>`;
+      box.appendChild(el);
+      return;
+    }
+    el.innerHTML = `
+      <header class="card-h"><span class="num">${i + 1}</span><canvas class="thumb" width="144" height="96"></canvas>
+        <div class="nm"><strong class="name"></strong><span>${p.iw} × ${p.ih} px</span></div></header>
+      <div class="ctl"><label for="w-${id}">Width</label>
+        <div class="row"><input type="number" id="w-${id}" data-k="w" min="60" step="1"><span class="unit">px</span><span class="info" data-info="w"></span></div></div>
+      <div class="ctl"><label for="z-${id}">Zoom</label>
+        <div class="row"><input type="range" id="z-${id}" data-k="zoom" min="20" max="600" step="1"><input type="number" class="sm" id="zn-${id}" data-k="zoom" min="20" max="600" step="1" aria-label="Zoom percent"><span class="unit">%</span></div></div>
+      <div class="ctl"><label for="x-${id}">Pan left / right</label><input type="range" id="x-${id}" data-k="cx" min="0" max="${p.iw}" step="1"></div>
+      <div class="ctl"><label for="y-${id}">Pan up / down</label><input type="range" id="y-${id}" data-k="cy" min="0" max="${p.ih}" step="1"></div>
+      <div class="card-f">
+        <label class="chk"><input type="checkbox" id="m-${id}" data-k="mirror"> Mirror</label>
+        <span class="warn" data-info="cov" hidden>White edges showing</span>
+        <div class="acts">
+          <button type="button" data-a="fit">Fit</button>
+          ${moveBtns}
+          <button type="button" data-a="del">${p.sample !== null ? 'Remove' : 'Remove photo'}</button>
+        </div>
+      </div>`;
+    el.querySelector('.name').textContent = p.name;
+    const t = el.querySelector('.thumb').getContext('2d');
+    const s = Math.max(144 / p.iw, 96 / p.ih);
+    t.drawImage(p.src, (144 - p.iw * s) / 2, (96 - p.ih * s) / 2, p.iw * s, p.ih * s);
+    box.appendChild(el);
+  });
+  if (state.panels.length < MAX_PHOTOS) {
+    const add = document.createElement('button');
+    add.type = 'button'; add.className = 'add-card'; add.dataset.a = 'add';
+    add.innerHTML = `<span><strong>Add photos</strong><br>or drop them anywhere on this page (up to ${MAX_PHOTOS})</span>`;
+    box.appendChild(add);
+  }
+  document.querySelectorAll('input[name="n-photos"]').forEach(r => r.checked = +r.value === state.panels.length);
+  $('#b-add').disabled = state.panels.length >= MAX_PHOTOS && state.panels.every(p => p.src && p.sample === null);
+  syncCards();
+}
+function markSelected() {
+  document.querySelectorAll('#cards .card').forEach(c => c.classList.toggle('sel', +c.dataset.i === state.sel));
+}
+function syncCards() {
+  const g = geom(), S = plan(g.W).S;
+  document.querySelectorAll('#cards .card').forEach(el => {
+    const i = +el.dataset.i, p = state.panels[i]; if (!p) return;
+    const w = S[i + 1] - S[i];
+    const set = (sel, v) => { const n = el.querySelector(sel); if (n && document.activeElement !== n) n.value = v; };
+    set('[data-k="w"]', w);
+    if (!p.src) { el.querySelector('[data-info="w"]').textContent = `${(w / g.W * 360).toFixed(1)}° · ${(Math.PI * g.D * w / g.W).toFixed(1)} mm`; return; }
+    set('input[type="range"][data-k="zoom"]', Math.round(p.zoom * 100));
+    set('input[type="number"][data-k="zoom"]', Math.round(p.zoom * 100));
+    set('[data-k="cx"]', Math.round(p.cx));
+    set('[data-k="cy"]', Math.round(p.cy));
+    el.querySelector('[data-k="mirror"]').checked = p.mirror;
+    el.querySelector('[data-info="w"]').textContent = `${(w / g.W * 360).toFixed(1)}° · ${(Math.PI * g.D * w / g.W).toFixed(1)} mm`;
+    // coverage check: does the photo cover the panel plus half of each fade?
+    const sc = baseScale(p, g), N = state.panels.length;
+    const fl = state.seams[i] ? state.seams[i].width / 2 : 0, fr = state.seams[(i + 1) % N] ? state.seams[(i + 1) % N].width / 2 : 0;
+    const hw = (w / 2 + Math.max(fl, fr)) / sc, hh = g.H / 2 / sc;
+    const bad = p.cx - hw < -0.5 || p.cx + hw > p.iw + 0.5 || p.cy - hh < -0.5 || p.cy + hh > p.ih + 0.5;
+    const warn = el.querySelector('[data-info="cov"]');
+    warn.hidden = !bad;
+    warn.textContent = state.fill === 'black' ? 'Black edges showing' : 'White edges showing';
+  });
+}
+function setWidth(i, px) {
+  const g = geom(), N = state.panels.length, span = plan(g.W).span;
+  if (N < 2) return;
+  px = clamp(px, 60, span - 60 * (N - 1));
+  const tot = state.panels.reduce((a, p) => a + p.f, 0), p = state.panels[i];
+  const nf = px / span * tot, ratio = (tot - nf) / (tot - p.f);
+  state.panels.forEach((q, j) => { if (j !== i) q.f *= ratio; });
+  p.f = nf;
+}
+$('#cards').addEventListener('input', e => {
+  const k = e.target.dataset.k; if (!k) return;
+  const i = +e.target.closest('.card').dataset.i, p = state.panels[i];
+  const v = +e.target.value;
+  if (k === 'w') { if (e.type === 'input' && e.target.value === '') return; setWidth(i, v); }
+  else if (k === 'zoom') { if (v > 0) p.zoom = clamp(v / 100, 0.2, 6); }
+  else if (k === 'cx') p.cx = v;
+  else if (k === 'cy') p.cy = v;
+  else if (k === 'mirror') p.mirror = e.target.checked;
+  if (state.sel !== i) { state.sel = i; markSelected(); }
+  requestDraw();
+});
+$('#cards').addEventListener('change', e => { if (e.target.dataset.k === 'w') syncCards(); });
+$('#cards').addEventListener('pointerdown', e => {
+  const c = e.target.closest('.card'); if (!c) return;
+  const i = +c.dataset.i; if (i !== state.sel) { state.sel = i; markSelected(); requestDraw(); }
+});
+$('#cards').addEventListener('click', e => {
+  const b = e.target.closest('[data-a]'); if (!b) return;
+  const a = b.dataset.a;
+  if (a === 'add') { pickSlot = undefined; $('#file').click(); return; }
+  const i = +b.closest('.card').dataset.i, ps = state.panels;
+  if (a === 'fill') { pickSlot = i; $('#file').click(); return; }
+  if (a === 'fit') { fitPanel(i); requestDraw(); return; }
+  if (a === 'left' && i > 0) { [ps[i - 1], ps[i]] = [ps[i], ps[i - 1]]; state.sel = i - 1; }
+  if (a === 'right' && i < ps.length - 1) { [ps[i + 1], ps[i]] = [ps[i], ps[i + 1]]; state.sel = i + 1; }
+  if (a === 'del') {
+    if (ps[i].src && ps[i].sample === null) ps[i] = emptyPanel(ps[i].f);   // a photo leaves an empty slot
+    else if (ps.length > 1) ps.splice(i, 1);
+    syncSeams(); photoMsg('');
+  }
+  renderCards(); renderSeamPicker(); requestDraw();
+});
+let pickSlot;
+$('#b-add').addEventListener('click', () => { pickSlot = undefined; $('#file').click(); });
+$('#file').addEventListener('change', e => { addFiles(e.target.files, pickSlot); pickSlot = undefined; e.target.value = ''; });
+document.querySelectorAll('input[name="n-photos"]').forEach(r => r.addEventListener('change', () => { if (r.checked) setCount(+r.value); }));
+$('#b-equal').addEventListener('click', () => { state.panels.forEach(p => p.f = 1); requestDraw(); });
+let dragDepth = 0;
+window.addEventListener('dragenter', e => { if ([...(e.dataTransfer?.types || [])].includes('Files')) { dragDepth++; $('#drop').hidden = false; } });
+window.addEventListener('dragleave', () => { dragDepth = Math.max(0, dragDepth - 1); if (!dragDepth) $('#drop').hidden = true; });
+window.addEventListener('dragover', e => e.preventDefault());
+window.addEventListener('drop', e => { e.preventDefault(); dragDepth = 0; $('#drop').hidden = true; if (e.dataTransfer?.files?.length) addFiles(e.dataTransfer.files); });
+window.addEventListener('paste', e => { const f = [...(e.clipboardData?.files || [])]; if (f.length) addFiles(f); });
+
+/* ---------- Bauble settings ---------- */
+function updateStats() {
+  const g = geom();
+  $('#s-height').textContent = g.height.toFixed(2) + '°';
+  $('#s-cut').textContent = g.cut.toFixed(2) + '°';
+  $('#s-ratio').textContent = (360 / g.height).toFixed(4) + ' : 1';
+  $('#s-size').textContent = `${g.W} × ${g.H} px`;
+  $('#s-equator').textContent = (Math.PI * g.D).toFixed(1) + ' mm';
+  $('#s-px').textContent = (Math.PI * g.D / g.W).toFixed(3) + ' mm';
+  if (state.autoH) $('#i-h').value = g.H;
+  $('#s-min').textContent = Math.ceil(Math.PI * g.D / 0.25 * g.height / 360) + ' px';
+  const s = state.seams[state.sameSeams ? 0 : state.seamSel];
+  if (s) $('#f-width-info').textContent = `${(s.width / g.W * 360).toFixed(1)}° · ${(Math.PI * g.D * s.width / g.W).toFixed(1)} mm on the bauble`;
+}
+[['#i-sphere', 'sphereD'], ['#i-cyl', 'cylOD'], ['#i-h', 'outH']].forEach(([sel, key]) => {
+  $(sel).addEventListener('input', e => { const v = +e.target.value; if (v > 0) { state[key] = v; requestDraw(); } });
+});
+$('#i-fill').addEventListener('change', e => { state.fill = e.target.value; renderCards(); requestDraw(); });
+$('#i-efade').addEventListener('input', e => { state.edgeFade = clamp(+e.target.value || 0, 0, 40); requestDraw(); });
+$('#i-auto').addEventListener('change', e => {
+  state.autoH = e.target.checked;
+  $('#i-h').disabled = state.autoH;
+  if (!state.autoH) state.outH = geom().H;   // start manual mode from the current auto value
+  requestDraw();
+});
+$('#i-span').addEventListener('change', e => {
+  state.span = +e.target.value === 180 ? 180 : 360;
+  state.panels.forEach((p, i) => { if (p.src) fitPanel(i); });
+  renderSeamPicker(); requestDraw();
+});
+$('#t-guides').addEventListener('change', e => { state.guides = e.target.checked; requestDraw(); });
+$('#t-grey').addEventListener('change', e => { state.greyView = e.target.checked; requestDraw(); });
+
+/* ---------- Fades ---------- */
+function seamName(j) {
+  const N = state.panels.length;
+  if (j === 0) return state.span === 180 ? 'Edges of the photos (plain half ↔ photos)' : N === 1 ? 'Back seam (where the photo meets itself)' : `Back seam (${N} → 1)`;
+  return `${j} → ${j + 1}`;
+}
+function renderSeamPicker() {
+  const sel = $('#f-pick'); sel.innerHTML = '';
+  state.panels.forEach((_, j) => { const o = document.createElement('option'); o.value = j; o.textContent = seamName(j); sel.appendChild(o); });
+  sel.value = state.seamSel;
+  $('#f-pick-wrap').hidden = state.sameSeams;
+  syncFadeUI();
+}
+function curSeam() { return state.seams[state.sameSeams ? 0 : state.seamSel] || DEF_SEAM(); }
+function syncFadeUI() {
+  const s = curSeam();
+  document.querySelectorAll('input[name="f-type"]').forEach(r => r.checked = r.value === s.type);
+  $('#f-width').value = s.width; if (document.activeElement !== $('#f-width-n')) $('#f-width-n').value = s.width;
+  $('#f-curve').value = s.curve; $('#f-shape').value = s.shape;
+  $('#f-amp').value = s.amp; $('#f-amp-v').textContent = s.amp + ' px';
+  $('#f-waves').value = s.waves; $('#f-waves-v').textContent = s.waves;
+  $('#f-slantr').value = s.slant; $('#f-slant-v').textContent = s.slant + ' px';
+  $('#f-soft').hidden = s.type === 'cut';
+  $('#f-wave').hidden = s.shape !== 'wave';
+  $('#f-slant').hidden = s.shape !== 'slant';
+}
+function editSeam(patch) {
+  const targets = state.sameSeams ? state.seams : [state.seams[state.seamSel]];
+  targets.forEach(s => s && Object.assign(s, patch));
+  syncFadeUI(); requestDraw();
+}
+document.querySelectorAll('input[name="f-type"]').forEach(r => r.addEventListener('change', () => editSeam({ type: r.value })));
+$('#f-width').addEventListener('input', e => editSeam({ width: +e.target.value }));
+$('#f-width-n').addEventListener('input', e => { if (e.target.value !== '') editSeam({ width: clamp(+e.target.value, 0, 1200) }); });
+$('#f-curve').addEventListener('change', e => editSeam({ curve: e.target.value }));
+$('#f-shape').addEventListener('change', e => editSeam({ shape: e.target.value }));
+$('#f-amp').addEventListener('input', e => editSeam({ amp: +e.target.value }));
+$('#f-waves').addEventListener('input', e => editSeam({ waves: +e.target.value }));
+$('#f-slantr').addEventListener('input', e => editSeam({ slant: +e.target.value }));
+$('#f-same').addEventListener('change', e => {
+  state.sameSeams = e.target.checked;
+  if (state.sameSeams) { const src = state.seams[state.seamSel] || DEF_SEAM(); state.seams = state.seams.map(() => Object.assign({}, src)); }
+  renderSeamPicker(); requestDraw();
+});
+$('#f-pick').addEventListener('change', e => { state.seamSel = +e.target.value; syncFadeUI(); updateStats(); });
+
+/* ---------- Sphere preview ---------- */
+const globeCv = $('#globe'), globe = { yaw: 0, pitch: -0.32, tex: null };
+function buildTex() {
+  if (!cache) return;
+  const img = cache.img, W = img.width, H = img.height;
+  globe.tex = { W, H, d: img.data };
+}
+function drawGlobe() {
+  const t = globe.tex; if (!t) return;
+  const g = cache.g, Z = globeCv.width, ctx = globeCv.getContext('2d');
+  const out = ctx.createImageData(Z, Z), o = out.data;
+  const cp = Math.cos(globe.pitch), sp = Math.sin(globe.pitch), cy = Math.cos(globe.yaw), sy = Math.sin(globe.yaw);
+  const lit = state.globeMode === 'lit', grey = state.greyView;
+  const R = Z / 2 - 2, cutR = g.cut * Math.PI / 180, hR = g.height * Math.PI / 180;
+  for (let py = 0; py < Z; py++) {
+    const v = (Z / 2 - py - 0.5) / R;
+    for (let px = 0; px < Z; px++) {
+      const u = (px + 0.5 - Z / 2) / R, r2 = u * u + v * v;
+      if (r2 > 1) continue;
+      const z = Math.sqrt(1 - r2);
+      const y1 = v * cp - z * sp, z1 = v * sp + z * cp;
+      const x2 = u * cy + z1 * sy, z2 = -u * sy + z1 * cy;
+      const phi = Math.acos(clamp(y1, -1, 1));
+      const shade = 0.42 + 0.58 * z;
+      const di = (py * Z + px) * 4;
+      let r, gg, b;
+      if (phi < cutR) { r = 70 * shade; gg = 66 * shade; b = 60 * shade; }
+      else {
+        const lon = Math.atan2(x2, z2);
+        const tx = Math.min(t.W - 1, Math.floor((lon / (2 * Math.PI) + 0.5) * t.W));
+        const ty = Math.min(t.H - 1, Math.floor((phi - cutR) / hR * t.H));
+        const si = (ty * t.W + tx) * 4;
+        r = t.d[si]; gg = t.d[si + 1]; b = t.d[si + 2];
+        if (lit) {
+          const L = (r * 299 + gg * 587 + b * 114) / 255000;
+          r = 255 * (0.1 + 0.92 * L); gg = 255 * (0.06 + 0.8 * L); b = 255 * (0.03 + 0.56 * L);
+        } else if (grey) { r = gg = b = (r * 299 + gg * 587 + b * 114) / 1000; }
+        r *= shade; gg *= shade; b *= shade;
+      }
+      o[di] = r; o[di + 1] = gg; o[di + 2] = b; o[di + 3] = 255;
+    }
+  }
+  ctx.putImageData(out, 0, 0);
+}
+let gdrag = null;
+globeCv.addEventListener('pointerdown', e => { globeCv.setPointerCapture(e.pointerId); gdrag = { x: e.clientX, y: e.clientY, yaw: globe.yaw, pitch: globe.pitch }; });
+globeCv.addEventListener('pointermove', e => {
+  if (!gdrag) return;
+  globe.yaw = gdrag.yaw - (e.clientX - gdrag.x) * 0.012;
+  globe.pitch = clamp(gdrag.pitch + (e.clientY - gdrag.y) * 0.01, -1.2, 1.2);
+  if (!globe.raf) globe.raf = requestAnimationFrame(() => { globe.raf = 0; drawGlobe(); });
+});
+globeCv.addEventListener('pointerup', () => gdrag = null);
+globeCv.addEventListener('pointercancel', () => gdrag = null);
+$('#g-mode').addEventListener('change', e => { state.globeMode = e.target.value; drawGlobe(); });
+
+/* ---------- Saving files ---------- */
+let dl, dlTried = false;
+async function getDownloads() {
+  if (dlTried) return dl;
+  if (window.claude && typeof window.claude.use === 'function') {
+    try { dl = await window.claude.use('downloads'); } catch { dl = null; }
+    dlTried = true;
+  }
+  return dl;
+}
+function setStatus(msg, kind) { const s = $('#save-status'); s.textContent = msg; s.className = 'status' + (kind ? ' ' + kind : ''); }
+async function exportPNG(rot) {
+  if (!state.panels.length) { setStatus('Add at least one photo first.', 'err'); return; }
+  const g = geom();
+  setStatus(`Rendering ${g.W} × ${g.H} px…`);
+  await new Promise(r => setTimeout(r, 30));
+  const res = composite(1);
+  let cv = document.createElement('canvas'); cv.width = res.W; cv.height = res.H;
+  cv.getContext('2d').putImageData(state.greySave ? greyCopy(res.img) : res.img, 0, 0);
+  if (rot) {
+    const c2 = document.createElement('canvas'); c2.width = res.W; c2.height = res.H;
+    const x = c2.getContext('2d'); x.translate(res.W, res.H); x.rotate(Math.PI); x.drawImage(cv, 0, 0); cv = c2;
+  }
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  const num = v => String(+(+v).toFixed(1)).replace('.', '_');
+  const filename = `bauble_wrap_${num(g.D)}mm_cyl${num(g.c)}mm${rot ? '_rot180' : ''}${state.greySave ? '_grey' : ''}.png`;
+  const d = await getDownloads();
+  if (d) {
+    try { await d.save({ filename, data: blob }); setStatus(`Saved ${filename}`, 'ok'); }
+    catch (err) {
+      const code = err && err.code;
+      setStatus(code === 'declined' ? 'Save cancelled.' : code === 'rate_limited' ? 'A save prompt is already open. Finish that one first.' : 'Saving files is not available in this view.', code === 'declined' ? '' : 'err');
+    }
+  } else if (!window.claude) {
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = filename; a.click();
+    setStatus(`Saved ${filename}`, 'ok');
+  } else setStatus('Saving files is not available in this view.', 'err');
+}
+$('#b-save-rot').addEventListener('click', () => exportPNG(true));
+$('#b-save-up').addEventListener('click', () => exportPNG(false));
+
+/* ---------- Hand the wrap to Lithophane Studio (when opened from it with ?studio=1) ---------- */
+const fromStudio = new URLSearchParams(location.search).get('studio') === '1';
+async function sendToStudio() {
+  if (!state.panels.length) { setStatus('Add at least one photo first.', 'err'); return; }
+  setStatus('Sending to Lithophane Studio…');
+  await new Promise(r => setTimeout(r, 30));
+  const res = composite(1);
+  const cv = document.createElement('canvas'); cv.width = res.W; cv.height = res.H;
+  cv.getContext('2d').putImageData(res.img, 0, 0);
+  const blob = await new Promise(r => cv.toBlob(r, 'image/png'));
+  const ok = await new Promise(done => {
+    try {
+      const r = indexedDB.open('litho-studio', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('handoff');
+      r.onerror = () => done(false);
+      r.onsuccess = () => {
+        const tx = r.result.transaction('handoff', 'readwrite');
+        tx.objectStore('handoff').put({ blob, sphereD: +state.sphereD, cylD: +state.cylOD, at: Date.now() }, 'wrap');
+        tx.oncomplete = () => done(true); tx.onerror = () => done(false);
+      };
+    } catch { done(false); }
+  });
+  if (ok) location.href = '../studio.html?shape=bauble#from=wrap';
+  else setStatus('This browser would not pass the image on. Save the upright copy and open it in the studio instead.', 'err');
+}
+$('#b-studio').addEventListener('click', sendToStudio);
+$('#s-grey').addEventListener('change', e => { state.greySave = e.target.checked; scheduleSave(); });
+
+/* ---------- Keep work between visits (this browser only) ---------- */
+let idb = null, saveTimer = 0, restoring = true;
+function openDB() {
+  return new Promise(res => {
+    try {
+      const r = indexedDB.open('bauble-wrap', 1);
+      r.onupgradeneeded = () => r.result.createObjectStore('p');
+      r.onsuccess = () => res(r.result); r.onerror = () => res(null);
+    } catch { res(null); }
+  });
+}
+function scheduleSave() {
+  if (restoring) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try {
+      idb = idb || await openDB(); if (!idb) return;
+      const snap = {
+        v: 1, sphereD: state.sphereD, cylOD: state.cylOD, outH: state.outH, autoH: state.autoH, fill: state.fill, span: state.span, edgeFade: state.edgeFade, greySave: state.greySave,
+        sameSeams: state.sameSeams, seamSel: state.seamSel, seams: state.seams, sel: state.sel, globeMode: state.globeMode,
+        panels: state.panels.map(p => p.src
+          ? { name: p.name, blob: p.blob, sample: p.sample, f: p.f, zoom: p.zoom, cx: p.cx, cy: p.cy, mirror: p.mirror }
+          : { empty: true, f: p.f })
+      };
+      idb.transaction('p', 'readwrite').objectStore('p').put(snap, 'current');
+    } catch { /* storage is optional */ }
+  }, 700);
+}
+async function restore() {
+  try {
+    idb = await openDB(); if (!idb) return false;
+    const snap = await new Promise(res => { const r = idb.transaction('p').objectStore('p').get('current'); r.onsuccess = () => res(r.result); r.onerror = () => res(null); });
+    if (!snap || !snap.panels || !snap.panels.length) return false;
+    const panels = [];
+    for (const s of snap.panels.slice(0, MAX_PHOTOS)) {
+      let p;
+      if (s.empty) { panels.push(emptyPanel(s.f)); continue; }
+      if (s.sample !== null && s.sample !== undefined) p = makeSample(s.sample);
+      else if (s.blob) { const { src, iw, ih } = await loadBlob(s.blob); p = newPanel(src, iw, ih, s.name, { blob: s.blob }); }
+      else continue;
+      Object.assign(p, { f: s.f, zoom: s.zoom, cx: s.cx, cy: s.cy, mirror: !!s.mirror });
+      panels.push(p);
+    }
+    if (!panels.length) return false;
+    Object.assign(state, { sphereD: snap.sphereD, cylOD: snap.cylOD, outH: snap.outH, autoH: snap.autoH !== false, fill: snap.fill || 'white', span: snap.span === 180 ? 180 : 360, edgeFade: snap.edgeFade ?? 8, greySave: !!snap.greySave,
+      sameSeams: snap.sameSeams !== false, seamSel: snap.seamSel || 0, seams: snap.seams || [], sel: snap.sel || 0, globeMode: snap.globeMode || 'lit', panels });
+    syncSeams();
+    return true;
+  } catch { return false; }
+}
+function syncInputs() {
+  $('#i-sphere').value = state.sphereD; $('#i-cyl').value = state.cylOD; $('#i-h').value = state.outH;
+  $('#i-auto').checked = state.autoH; $('#i-h').disabled = state.autoH;
+  $('#i-fill').value = state.fill; $('#i-efade').value = state.edgeFade; $('#i-span').value = String(state.span); $('#s-grey').checked = state.greySave; $('#f-same').checked = state.sameSeams;
+  $('#g-mode').value = state.globeMode;
+}
+
+/* ---------- Start ---------- */
+(async () => {
+  const ok = await restore();
+  if (!ok) loadSamples();
+  restoring = false;
+  if (fromStudio) {
+    // sizes chosen in the studio come in the address: #sphereD=100&cylD=36
+    const h = new URLSearchParams(location.hash.slice(1));
+    const sd = parseFloat(h.get('sphereD')), cd = parseFloat(h.get('cylD'));
+    if (sd > 0) state.sphereD = sd;
+    if (cd > 0) state.cylOD = cd;
+    $('#b-studio').hidden = false;
+  }
+  syncInputs(); renderCards(); renderSeamPicker(); draw();
+  getDownloads();
+  new ResizeObserver(() => requestDraw()).observe(wrapCv.parentElement);
+})();
+
+// Debug hook for checking the output against the Python script.
+window.wrapTool = { state, geom, composite, loadBlob, newPanel, syncSeams, renderCards, renderSeamPicker, draw };
+})();
+</script>
+</body>
+</html>
