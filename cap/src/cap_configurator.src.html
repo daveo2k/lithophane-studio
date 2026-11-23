@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="brand/site-header.css">
 <style>
 /* Layout: workbench — settings rail on the left, live 3D stage on the right; stacks on phones. */
 /* BadgerTech theme, shared with the House Number Generator: cool workshop greys, 3000K LED amber. */
@@ -42,19 +43,6 @@
   --accent: #f0b45a; --accent-ink: #1a1d20; --brass: #f0b45a; --warn-bg: #3a2a12; --warn-fg: #f6d39a;
   --stage: #0f1113; color-scheme: dark;
 }
-.brandbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
-.brandbar a { display: inline-flex; border-radius: 6px; }
-.brandbar a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
-.brandbar img { display: block; height: 40px; width: auto; }
-.brandbar .lockup-dark { display: none; }
-.brandbar span { font-family: var(--font-data); font-size: 12px; letter-spacing: .06em; color: var(--muted); }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .brandbar .lockup-light { display: none; }
-  :root:not([data-theme="light"]) .brandbar .lockup-dark { display: block; }
-}
-:root[data-theme="dark"] .brandbar .lockup-light { display: none; }
-:root[data-theme="dark"] .brandbar .lockup-dark { display: block; }
-@media (max-width: 520px) { .brandbar img { height: 32px; } .brandbar span { display: none; } }
 .eyebrow { font-family: var(--font-data); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; width: 100%; }
 * { box-sizing: border-box; }
 html, body { height: 100%; }
@@ -116,12 +104,16 @@ hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
 </style>
 
 <div class="app">
-  <div class="brandbar">
-    <a href="../" aria-label="BadgerTech Lithophane Studio home">
-      <img class="lockup-light" src="brand/badgertech-lockup.svg" alt="BadgerTech" width="171" height="40">
-      <img class="lockup-dark" src="brand/badgertech-lockup-on-dark.svg" alt="BadgerTech" width="171" height="40">
+  <div class="site-header">
+    <a class="site-logo" href="../" aria-label="BadgerTech Lithophane Studio home">
+      <img class="logo-light" src="brand/badgertech-lockup.svg" alt="BadgerTech" width="171" height="40">
+      <img class="logo-dark" src="brand/badgertech-lockup-on-dark.svg" alt="BadgerTech" width="171" height="40">
     </a>
-    <span>Bauble Cap Maker</span>
+    <nav class="site-nav" aria-label="Tools">
+      <a href="../studio.html">Studio</a>
+      <a href="../wrap/">Photo wrap</a>
+      <a href="../cap/" aria-current="page">End caps</a>
+    </nav>
   </div>
   <header>
     <div>

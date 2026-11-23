@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Jost:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="brand/site-header.css">
 <style>
 /* BadgerTech theme, shared with the House Number Generator, the wrap tool and the end cap maker. */
 :root {
@@ -42,9 +43,10 @@ a { color: var(--accent-text); }
 button, input, select { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.top { background: var(--panel); border-bottom: 1px solid var(--line); }
+.page-top { max-width: 1400px; margin: 0 auto; padding: 16px max(16px, env(safe-area-inset-left)) 0; }
+.page-top .site-header { border-bottom: 0; padding-bottom: 14px; }
+.top { background: var(--panel); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
 .top-in { max-width: 1400px; margin: 0 auto; padding: 10px max(16px, env(safe-area-inset-left)); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; }
-.top .home img { display: block; width: 32px; height: 32px; }
 .proj { display: flex; flex-direction: column; min-width: 0; }
 .proj span { font: 11px var(--font-data); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
 .proj input { border: 0; background: transparent; padding: 0; font: 500 18px var(--font-display); width: 16em; max-width: 60vw; }
@@ -90,7 +92,7 @@ dl.stats dt { color: var(--muted); } dl.stats dd { margin: 0; }
 .drop.over { border-color: var(--accent); background: var(--warn-bg); }
 
 /* 3D stage */
-.stage { position: relative; background: var(--stage); border-radius: 12px; overflow: hidden; min-height: 560px; height: calc(100vh - 140px); max-height: 900px; }
+.stage { position: relative; background: var(--stage); border-radius: 12px; overflow: hidden; min-height: 560px; height: calc(100vh - 210px); max-height: 900px; }
 .stage.day { background: #dfe4e6; }
 #view { position: absolute; inset: 0; }
 #view canvas { display: block; width: 100%; height: 100%; touch-action: none; }
@@ -126,9 +128,21 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
 </style>
 </head>
 <body>
+<div class="page-top">
+  <div class="site-header">
+    <a class="site-logo" href="./" aria-label="BadgerTech Lithophane Studio home">
+      <img class="logo-light" src="brand/badgertech-lockup.svg" alt="BadgerTech" width="171" height="40">
+      <img class="logo-dark" src="brand/badgertech-lockup-on-dark.svg" alt="BadgerTech" width="171" height="40">
+    </a>
+    <nav class="site-nav" aria-label="Tools">
+      <a href="./studio.html" aria-current="page">Studio</a>
+      <a href="./wrap/">Photo wrap</a>
+      <a href="./cap/">End caps</a>
+    </nav>
+  </div>
+</div>
 <header class="top">
   <div class="top-in">
-    <a class="home" href="./" aria-label="Lithophane Studio home"><img src="brand/badgertech-mark-small.svg" alt="" width="32" height="32"></a>
     <div class="proj"><span id="proj-kind">Bauble</span><input id="proj-name" value="My lithophane" aria-label="Project name"></div>
     <nav class="steps" aria-label="Steps">
       <button type="button" data-step="shape" aria-current="step"><b>1</b>Shape</button>

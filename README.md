@@ -63,7 +63,7 @@ The stack serves the studio and both tools. Rebuild it (**Pull and redeploy**) t
 | `geometry.js` | Builds the lithophane meshes (closed, watertight surfaces with no boolean operations) and writes the STL files |
 | `wrap/` | The photo wrap tool, served at `/wrap/` |
 | `cap/` | The end cap maker, served at `/cap/`; `cap/src/` holds the source its page is generated from |
-| `brand/`, `site.webmanifest` | BadgerTech logo and icons, shared by all three tools |
+| `brand/`, `site.webmanifest` | BadgerTech logo, icons and the site header style (`brand/site-header.css`), shared by every page |
 | `build.sh`, `_headers`, `wrangler.jsonc` | Builds the static site into `dist/` and tells Cloudflare where to find it |
 | `Dockerfile`, `nginx.conf.template`, `docker-compose.yml` | Container setup |
 
