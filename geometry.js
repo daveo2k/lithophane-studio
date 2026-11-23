@@ -209,11 +209,21 @@ const Litho = (() => {
     return assemble(rings, ringT, cols, { wrapU: true, loop: true });
   }
 
+  const NECK_BLEND = 2.5;   // mm of image, next to the neck, that eases up to full thickness
+
   // Bauble: hangs from its neck (Z up). Outside: bottom pole → image rows → neck → ledge → end face; inside: bore →
   // smooth inner sphere → inner pole. Neck sizes match the end cap maker: neck height runs from where a sphere of
   // the full diameter meets the neck's bore, to the open end; the ledge is as tall as the neck wall.
-  function bauble(p, T, cols, rows) {
+  function bauble(p, T0, cols, rows) {
     const a = imageArea('bauble', p);
+    // Ease the image up to full thickness over the last few mm before the neck, so the sphere reaches its full
+    // diameter exactly where it meets the neck. Without this the thin image edge sits inside the neck's outer wall
+    // and leaves an inward notch between sphere and neck.
+    const T = Float32Array.from(T0), dv = a.V / (rows - 1), blend = NECK_BLEND;
+    for (let r = 0; r < rows && r * dv < blend; r++) {
+      const s = r * dv / blend, w = 1 - s * s * (3 - 2 * s);    // 1 at the neck, easing to 0 at the blend's end
+      for (let c = 0; c < cols; c++) { const i = r * cols + c; T[i] += (p.maxT - T[i]) * w; }
+    }
     const R = p.sphereD / 2, Ri = R - p.maxT, Rc = p.cylD / 2, RcIn = Rc - p.cylT, Rl = p.ledgeD / 2;
     const zEnd = Math.sqrt(R * R - RcIn * RcIn) + p.cylH, zLedge = zEnd - p.cylT;
     const zMeet = Math.sqrt(R * R - Rc * Rc) + 0.3;
