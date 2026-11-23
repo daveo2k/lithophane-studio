@@ -13,27 +13,11 @@ Everything prints without supports: the cap skirt down, the spindle disc down. T
 
 Everything runs in the browser. The page loads three.js and the Manifold geometry engine's script from cdn.jsdelivr.net, so the browser needs internet access. The Manifold WASM is embedded in `index.html`.
 
-## Run with Docker
+## Where it runs
 
-```bash
-docker compose up -d --build
-```
+This tool is part of [Lithophane Studio](../README.md) and is served from `/cap/` alongside the studio. It is built, run (Docker or Portainer) and deployed (Cloudflare) with the studio; see the main README.
 
-Then open http://localhost:8081. To use a different port, set `HTTP_PORT`, for example `HTTP_PORT=8090 docker compose up -d --build`.
-
-The default is 8081 so it can run next to [bauble-image-tool](https://github.com/daveo2k/bauble-image-tool) on 8080.
-
-## Deploy in Portainer
-
-1. **Stacks → Add stack**, give it a name such as `bauble-cap`.
-2. Choose **Repository**.
-3. Repository URL: `https://github.com/daveo2k/bauble-cap`, reference `refs/heads/main`, compose path `docker-compose.yml`.
-4. Optional: under **Environment variables**, add `HTTP_PORT` to change the host port (default 8081).
-5. **Deploy the stack**. Portainer builds the image from the repo and starts it.
-
-To update after a new commit, open the stack and click **Pull and redeploy**.
-
-The image is always built from the repo (`pull_policy: build`) and never pulled from a registry, so no `docker login` is needed. `HTTP_PORT` sets both the host port and the port nginx listens on inside the container.
+`index.html` is self-contained apart from Google Fonts and its CDN libraries, so it also works opened directly in a browser. It uses the logo in the studio's `brand/` folder, which the build copies in next to it.
 
 ## Editing the page
 
@@ -42,7 +26,3 @@ The image is always built from the repo (`pull_policy: build`) and never pulled 
 ```bash
 python3 src/build_page.py path/to/manifold.wasm
 ```
-
-## Without Docker
-
-Open `index.html` directly in a browser, or serve it from any static web server.

@@ -15,28 +15,8 @@ A browser tool for building the 360° wrap image for a lithophane sphere (Classi
 
 Everything runs in the browser. Photos never leave your machine, and your work is kept in that browser between visits.
 
-## Run with Docker
+## Where it runs
 
-```bash
-docker compose up -d --build
-```
+This tool is part of [Lithophane Studio](../README.md) and is served from `/wrap/` alongside the studio. It is built, run (Docker or Portainer) and deployed (Cloudflare) with the studio; see the main README.
 
-Then open http://localhost:8080. To use a different port, set `HTTP_PORT`, for example `HTTP_PORT=8090 docker compose up -d --build`.
-
-## Deploy in Portainer
-
-1. **Stacks → Add stack**, give it a name such as `bauble-image-tool`.
-2. Choose **Repository**.
-3. Repository URL: `https://github.com/daveo2k/bauble-image-tool`, reference `refs/heads/main`, compose path `docker-compose.yml`.
-4. Optional: under **Environment variables**, add `HTTP_PORT` to change the host port (default 8080).
-5. **Deploy the stack**. Portainer builds the image from the repo and starts it.
-
-To update after a new commit, open the stack and click **Pull and redeploy**.
-
-The image is always built from the repo (`pull_policy: build`) and never pulled from a registry, so no `docker login` is needed. `HTTP_PORT` sets both the host port and the port nginx listens on inside the container.
-
-Don't pick a port that browsers refuse to open, such as 5060 or 5061 (used by phone systems), 6000, or 6665–6669. The container still runs and shows as healthy, but the browser shows "This site can't be reached" (`ERR_UNSAFE_PORT`). Ports such as 8080, 8090 or 5080 work.
-
-## Without Docker
-
-`index.html` is self-contained apart from Google Fonts. Open it directly in a browser, or serve it from any static web server.
+`index.html` is self-contained apart from Google Fonts and its CDN libraries, so it also works opened directly in a browser. It uses the logo in the studio's `brand/` folder, which the build copies in next to it.
