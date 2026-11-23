@@ -33,6 +33,7 @@ To check the result before uploading, run `npx serve dist` and open the address 
 3. Drag in the **contents** of `dist/`, or a zip of them. `index.html` must be at the top level, not inside a folder.
 4. Select **Deploy site**.
 5. To use your own domain, open the project's **Custom domains** tab and add one, for example `lithophane.example.com`. The domain is already on Cloudflare, so it creates the DNS record and HTTPS certificate for you.
+6. For the domain (not the Pages project), go to **SSL/TLS → Edge Certificates** and turn on **Always Use HTTPS**, so `http://` links redirect to `https://`. Cloudflare issues and renews the certificate itself, so there is no Let's Encrypt or certbot to set up.
 
 ### Updating it
 

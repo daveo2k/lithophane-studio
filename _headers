@@ -2,3 +2,5 @@
 # check for a newer copy, so a new deploy shows up straight away.
 /*
   Cache-Control: no-cache
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
