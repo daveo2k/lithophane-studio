@@ -376,15 +376,26 @@ const Litho = (() => {
   }
 
   // every edge used exactly twice, once each way: the mesh is closed and consistently wound
+  // Watertight check: every edge a→b must be used by exactly one triangle, and its reverse b→a by exactly one
+  // other, which means no holes, no doubled faces and every triangle facing the same way as its neighbours.
+  // Built as a per-vertex edge list in typed arrays, so it works for any model size (a Map keyed on vertex pairs
+  // loses precision above about 2 million vertices, and has a size limit, which finest-detail models exceed).
   function checkClosed(idx) {
-    const m = new Map();
-    for (let i = 0; i < idx.length; i += 3) for (let e = 0; e < 3; e++) {
-      const a = idx[i + e], b = idx[i + (e + 1) % 3], key = a * 4294967296 + b;
-      m.set(key, (m.get(key) || 0) + 1);
+    let nv = 0;
+    for (let i = 0; i < idx.length; i++) if (idx[i] >= nv) nv = idx[i] + 1;
+    const start = new Uint32Array(nv + 1);
+    for (let i = 0; i < idx.length; i++) start[idx[i] + 1]++;       // each triangle corner starts one edge
+    for (let v = 0; v < nv; v++) start[v + 1] += start[v];
+    const fill = start.slice(0, nv), to = new Uint32Array(idx.length);
+    for (let i = 0; i < idx.length; i += 3) for (let e = 0; e < 3; e++) to[fill[idx[i + e]]++] = idx[i + (e + 1) % 3];
+    const count = (a, b) => { let n = 0; for (let j = start[a]; j < start[a + 1]; j++) if (to[j] === b) n++; return n; };
+    for (let a = 0; a < nv; a++) {
+      for (let j = start[a]; j < start[a + 1]; j++) {
+        const b = to[j];
+        if (count(a, b) !== 1 || count(b, a) !== 1) return false;
+      }
     }
-    let bad = 0;
-    for (const [key, n] of m) { const a = Math.floor(key / 4294967296), b = key % 4294967296; if (n !== 1 || m.get(b * 4294967296 + a) !== 1) bad++; }
-    return bad === 0;
+    return true;
   }
 
   return { SHAPES, imageArea, neckFillet, limitOverhang, thickness, build, forPrint, bounds, toSTL, signedVolume, checkClosed };
