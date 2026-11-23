@@ -66,7 +66,7 @@ Each build clones the latest `main` of bauble-image-tool and bauble-cap into `/w
 | `studio.html` | The studio: image, shape and print steps, plus the three.js preview |
 | `geometry.js` | Builds the lithophane meshes (closed, watertight surfaces with no boolean operations) and writes the STL files |
 | `brand/`, `site.webmanifest` | BadgerTech logo and icons |
-| `build.sh`, `_headers` | Builds the static site into `dist/` for Cloudflare Pages |
+| `build.sh`, `_headers`, `wrangler.jsonc` | Builds the static site into `dist/` and tells Cloudflare where to find it |
 | `Dockerfile`, `nginx.conf.template`, `docker-compose.yml` | Container setup |
 
 ## Not in this version

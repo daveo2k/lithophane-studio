@@ -1,0 +1,9 @@
+// Cloudflare Workers config: the site is static files only, built into dist/ by build.sh.
+// Cloudflare runs "sh build.sh" then "npx wrangler deploy", which uploads dist/ as the site.
+{
+  "name": "lithophane-studio",
+  "compatibility_date": "2025-09-01",
+  "assets": {
+    "directory": "./dist"
+  }
+}
