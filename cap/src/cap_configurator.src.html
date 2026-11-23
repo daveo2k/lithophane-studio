@@ -1,0 +1,841 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bauble Cap Maker · BadgerTech</title>
+<link rel="manifest" href="site.webmanifest">
+<link rel="icon" type="image/svg+xml" href="brand/badgertech-mark-small.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="brand/badgertech-mark-32.png">
+<link rel="apple-touch-icon" href="brand/badgertech-mark-192.png">
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Jost:wght@400;500;600&display=swap">
+<style>
+/* Layout: workbench — settings rail on the left, live 3D stage on the right; stacks on phones. */
+/* BadgerTech theme, shared with the House Number Generator: cool workshop greys, 3000K LED amber. */
+:root {
+  --bg: #eef0f0;
+  --panel: #ffffff;
+  --fg: #1b1e21;
+  --muted: #5b646b;
+  --line: #d3d8db;
+  --accent: #b9741a;
+  --accent-ink: #ffffff;
+  --brass: #b9741a;
+  --warn-bg: #fff4e0;
+  --warn-fg: #7a4a07;
+  --stage: #e2e6e7;
+  --font-display: "Jost", "Futura", "Avenir Next", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121416; --panel: #1a1d20; --fg: #e8eaeb; --muted: #9aa3a9; --line: #2d3236;
+    --accent: #f0b45a; --accent-ink: #1a1d20; --brass: #f0b45a; --warn-bg: #3a2a12; --warn-fg: #f6d39a;
+    --stage: #0f1113; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121416; --panel: #1a1d20; --fg: #e8eaeb; --muted: #9aa3a9; --line: #2d3236;
+  --accent: #f0b45a; --accent-ink: #1a1d20; --brass: #f0b45a; --warn-bg: #3a2a12; --warn-fg: #f6d39a;
+  --stage: #0f1113; color-scheme: dark;
+}
+.brandbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 14px; border-bottom: 1px solid var(--line); }
+.brandbar a { display: inline-flex; border-radius: 6px; }
+.brandbar a:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; }
+.brandbar img { display: block; height: 40px; width: auto; }
+.brandbar .lockup-dark { display: none; }
+.brandbar span { font-family: var(--font-data); font-size: 12px; letter-spacing: .06em; color: var(--muted); }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .brandbar .lockup-light { display: none; }
+  :root:not([data-theme="light"]) .brandbar .lockup-dark { display: block; }
+}
+:root[data-theme="dark"] .brandbar .lockup-light { display: none; }
+:root[data-theme="dark"] .brandbar .lockup-dark { display: block; }
+@media (max-width: 520px) { .brandbar img { height: 32px; } .brandbar span { display: none; } }
+.eyebrow { font-family: var(--font-data); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); margin: 0 0 6px; width: 100%; }
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body {
+  background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.45;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 16px;
+}
+.app { max-width: 1280px; margin: 0 auto; display: flex; flex-direction: column; gap: 14px; min-height: 100%; }
+header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 16px; }
+header > div { display: flex; flex-direction: column; gap: 6px; }
+h1 { font-family: var(--font-display); font-weight: 500; font-size: clamp(28px, 4.4vw, 44px); line-height: 1.05; margin: 0; text-wrap: balance; }
+header p { margin: 0; color: var(--muted); max-width: 72ch; }
+.work { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 14px; flex: 1; min-height: 0; }
+@media (max-width: 860px) { .work { grid-template-columns: 1fr; } .stage-wrap { order: -1; } }
+
+.rail { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; display: flex; flex-direction: column; min-width: 0; }
+.rail-scroll { padding: 14px; display: flex; flex-direction: column; gap: 14px; overflow: auto; }
+@media (min-width: 861px) { .rail { max-height: calc(100vh - 220px); } }
+
+.seg { display: grid; grid-template-columns: 1fr 1fr; background: var(--bg); border: 1px solid var(--line); border-radius: 10px; padding: 3px; gap: 3px; }
+.seg button { font: 600 13px var(--font-body); border: 0; border-radius: 7px; padding: 9px 8px; background: transparent; color: var(--muted); cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.seg button:focus-visible, .btn:focus-visible, input:focus-visible, select:focus-visible, .chip:focus-visible { outline: 2px solid var(--brass); outline-offset: 2px; }
+
+fieldset { border: 0; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+legend { font: 500 11px var(--font-data); letter-spacing: 0.08em; text-transform: uppercase; color: var(--brass); padding: 0; margin-bottom: 4px; }
+.hint { color: var(--muted); font-size: 12px; margin: -2px 0 2px; }
+.row { display: grid; grid-template-columns: minmax(0, 1fr) 96px; align-items: center; gap: 10px; }
+.row label { min-width: 0; }
+.field { display: flex; align-items: center; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); overflow: hidden; }
+.field input, .field select { width: 100%; min-width: 0; border: 0; background: transparent; color: var(--fg); font: 500 13px var(--font-data); padding: 7px 4px 7px 8px; font-variant-numeric: tabular-nums; }
+.field span { font: 12px var(--font-data); color: var(--muted); padding-right: 8px; }
+.check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.check input { accent-color: var(--accent); width: 16px; height: 16px; }
+hr { border: 0; border-top: 1px solid var(--line); margin: 0; }
+.parts { margin: 0; padding-left: 18px; color: var(--muted); font-size: 12px; display: flex; flex-direction: column; gap: 2px; }
+.parts b { color: var(--fg); font-weight: 600; }
+
+.rail-foot { border-top: 1px solid var(--line); padding: 14px; display: flex; flex-direction: column; gap: 10px; }
+.btn { font: 600 14px var(--font-body); border: 0; border-radius: 9px; padding: 11px 14px; background: var(--accent); color: var(--accent-ink); cursor: pointer; }
+.btn[disabled] { opacity: 0.5; cursor: progress; }
+.status { font-size: 12px; color: var(--muted); min-height: 1.2em; }
+.warn { background: var(--warn-bg); color: var(--warn-fg); border-radius: 8px; padding: 8px 10px; font-size: 12px; }
+
+.stage-wrap { position: relative; background: var(--stage); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; min-height: 460px; }
+@media (max-width: 860px) { .stage-wrap { min-height: 0; height: 80vw; max-height: 560px; } }
+#stage { position: absolute; inset: 0; }
+#stage canvas { display: block; width: 100%; height: 100%; touch-action: none; }
+.toolbar { position: absolute; left: 10px; top: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 6px; pointer-events: none; }
+.chip { pointer-events: auto; display: inline-flex; align-items: center; gap: 6px; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 5px 10px; font: 12px var(--font-body); color: var(--fg); cursor: pointer; }
+.chip input { accent-color: var(--accent); margin: 0; }
+.chip select { border: 0; background: transparent; color: var(--fg); font: 12px var(--font-body); }
+.readout { position: absolute; left: 10px; bottom: 10px; right: 10px; display: flex; flex-wrap: wrap; gap: 6px 14px; font: 12px var(--font-data); color: var(--muted); pointer-events: none; }
+.readout b { color: var(--fg); font-weight: 500; }
+.loading { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); font-size: 13px; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="app">
+  <div class="brandbar">
+    <a href="./" aria-label="BadgerTech, Bauble Cap Maker home">
+      <img class="lockup-light" src="brand/badgertech-lockup.svg" alt="BadgerTech" width="171" height="40">
+      <img class="lockup-dark" src="brand/badgertech-lockup-on-dark.svg" alt="BadgerTech" width="171" height="40">
+    </a>
+    <span>Bauble Cap Maker</span>
+  </div>
+  <header>
+    <div>
+    <p class="eyebrow">Lithophane bauble · snap-on cap for lights</p>
+    <h1>Bauble Cap Maker</h1>
+    </div>
+    <p>A snap-on cap for a LithophaneMaker globe bauble. It clips over the bauble's cylinder ledge. Choose a wire pass-through for tree string lights, or a hanging spindle to wind micro LED lights on fine copper wire around inside the bauble.</p>
+  </header>
+
+  <div class="work">
+    <aside class="rail" aria-label="Cap settings">
+      <div class="rail-scroll">
+        <div class="seg" role="group" aria-label="Light type">
+          <button type="button" id="mode-string" aria-pressed="true">String lights</button>
+          <button type="button" id="mode-micro" aria-pressed="false">Micro lights</button>
+        </div>
+
+        <fieldset id="grp-string">
+          <legend>String-light pass-through</legend>
+          <p class="hint">Bunch the bulbs inside the bauble. Then slide the wires sideways through the slot into the centre hole, so you don't need to cut the string. The wires leave through the top of the cap.</p>
+          <div class="row"><label for="wireHole">Wire hole diameter</label><div class="field"><input id="wireHole" type="number" step="0.5" min="2" value="8"><span>mm</span></div></div>
+          <div class="row"><label for="wireSlot">Wire slot width</label><div class="field"><input id="wireSlot" type="number" step="0.1" min="0.8" value="2.2"><span>mm</span></div></div>
+          <div class="row"><label for="nBulbs">Bulbs in the preview</label><div class="field"><select id="nBulbs"><option value="1">1</option><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select></div></div>
+          <div class="row"><label for="bulbD">Bulb diameter</label><div class="field"><input id="bulbD" type="number" step="0.1" min="2" value="5"><span>mm</span></div></div>
+        </fieldset>
+
+        <fieldset id="grp-micro" hidden>
+          <legend>Micro-light spindle</legend>
+          <p class="hint">Feed the free end of the wire down through the cap and the hollow spindle. Out of the bottom, wind it back up the groove and press the end into one of the two clip slots where the spiral finishes. Set the disc on the end of the bauble collar and snap the cap on; the cap clamps the disc in place.</p>
+          <div class="row"><label for="spinLen">Spindle length</label><div class="field"><input id="spinLen" type="number" step="1" min="25" value="85"><span>mm</span></div></div>
+          <div class="row"><label for="spinD">Spindle diameter</label><div class="field"><input id="spinD" type="number" step="0.5" min="6" value="12"><span>mm</span></div></div>
+          <div class="row"><label for="spinBore">Hollow centre diameter</label><div class="field"><input id="spinBore" type="number" step="0.5" min="1.5" value="4"><span>mm</span></div></div>
+          <div class="row"><label for="bareTop">Bare stem under the disc</label><div class="field"><input id="bareTop" type="number" step="1" min="8" value="18"><span>mm</span></div></div>
+          <p class="hint">The top of the spindle sits inside the bauble's cylinder, where lights would be hidden. The spiral starts below it. Make this about the cylinder height plus 3 mm. Two clip slots, one each side, hold the end of the lights where the spiral finishes.</p>
+          <label class="check"><input id="collar" type="checkbox" checked> Snap-on clip collar for the end of the lights</label>
+          <div class="row"><label for="collarClr">Collar grip clearance</label><div class="field"><input id="collarClr" type="number" step="0.05" min="0" value="0.15"><span>mm</span></div></div>
+          <p class="hint">Once the lights are wound, lay the end of the wire up the bare stem and push the clip onto the stem from the side, over the wire. It pinches the wire against the stem. Add a drop of glue if you want it permanent. If it's loose, lower the clearance.</p>
+          <label class="check"><input id="groove" type="checkbox" checked> Spiral groove for the wire</label>
+          <label class="check"><input id="autoPitch" type="checkbox" checked> Space the spiral to fit my lights</label>
+          <p class="hint">The plain lead from the battery box runs down the hollow centre. The lit part, from the first LED to the last, winds up the outside, spread evenly from the bottom of the spindle to the top.</p>
+          <div class="row"><label for="litLen">Lit length (first to last LED)</label><div class="field"><input id="litLen" type="number" step="10" min="20" value="1000"><span>mm</span></div></div>
+          <div class="row"><label for="ledSpacing">LED spacing</label><div class="field"><input id="ledSpacing" type="number" step="5" min="5" value="100"><span>mm</span></div></div>
+          <div class="row"><label for="pitch">Groove spacing per turn</label><div class="field"><input id="pitch" type="number" step="0.5" min="2" value="6"><span>mm</span></div></div>
+          <div class="row"><label for="grooveDepth">Groove depth</label><div class="field"><input id="grooveDepth" type="number" step="0.1" min="0.3" value="0.8"><span>mm</span></div></div>
+          <div class="row"><label for="wireClip">Wire clip slot width</label><div class="field"><input id="wireClip" type="number" step="0.05" min="0.2" value="0.6"><span>mm</span></div></div>
+          <div class="row"><label for="discT">Disc thickness</label><div class="field"><input id="discT" type="number" step="0.1" min="0.8" value="1.6"><span>mm</span></div></div>
+          <div class="row"><label for="microHole">Cap wire hole diameter</label><div class="field"><input id="microHole" type="number" step="0.5" min="1" value="4"><span>mm</span></div></div>
+          <div class="row"><label for="microSlot">Cap wire slot width</label><div class="field"><input id="microSlot" type="number" step="0.1" min="0" value="1.2"><span>mm</span></div></div>
+          <p class="hint">Set the cap wire slot to 0 for no slot. The battery box then stays outside and you thread only the free end through.</p>
+        </fieldset>
+
+        <hr>
+        <fieldset>
+          <legend>Bauble</legend>
+          <p class="hint" id="bauble-src">Use the same numbers you entered in the LithophaneMaker Globe settings.</p>
+          <div class="row"><label for="sphereD">Sphere diameter</label><div class="field"><input id="sphereD" type="number" step="1" min="40" value="100"><span>mm</span></div></div>
+          <div class="row"><label for="cylD">Cylinder outer diameter</label><div class="field"><input id="cylD" type="number" step="0.5" min="10" value="36"><span>mm</span></div></div>
+          <div class="row"><label for="cylT">Cylinder thickness</label><div class="field"><input id="cylT" type="number" step="0.1" min="1" value="3"><span>mm</span></div></div>
+          <div class="row"><label for="ledgeD">Cylinder ledge outer diameter</label><div class="field"><input id="ledgeD" type="number" step="0.5" min="10" value="40"><span>mm</span></div></div>
+          <div class="row"><label for="cylH">Cylinder height</label><div class="field"><input id="cylH" type="number" step="0.5" min="4" value="15"><span>mm</span></div></div>
+        </fieldset>
+
+        <hr>
+        <fieldset>
+          <legend>Snap fit</legend>
+          <p class="hint">If the cap is too tight, lower the catch depth. If it's loose, raise it.</p>
+          <div class="row"><label for="clr">Side clearance</label><div class="field"><input id="clr" type="number" step="0.05" min="0" value="0.35"><span>mm</span></div></div>
+          <div class="row"><label for="catch">Catch depth</label><div class="field"><input id="catch" type="number" step="0.1" min="0.2" value="0.5"><span>mm</span></div></div>
+          <div class="row"><label for="skirt">Skirt wall</label><div class="field"><input id="skirt" type="number" step="0.1" min="1" value="2"><span>mm</span></div></div>
+          <div class="row"><label for="slots">Flex slots</label><div class="field"><input id="slots" type="number" step="1" min="0" max="12" value="6"></div></div>
+        </fieldset>
+
+        <hr>
+        <fieldset>
+          <legend>Top of the cap</legend>
+          <label class="check"><input id="loop" type="checkbox" checked> Hanging loop</label>
+          <div class="row"><label for="loopT">Loop thickness</label><div class="field"><input id="loopT" type="number" step="0.5" min="2" value="3"><span>mm</span></div></div>
+          <label class="check"><input id="cleat" type="checkbox" checked> Cable cleat to wrap spare wire around</label>
+        </fieldset>
+      </div>
+
+      <div class="rail-foot">
+        <ul class="parts" id="parts"></ul>
+        <div id="warnings"></div>
+        <button class="btn" id="download" type="button" disabled>Download STL files</button>
+        <div class="status" id="status">Loading the geometry engine…</div>
+      </div>
+    </aside>
+
+    <section class="stage-wrap" aria-label="3D preview">
+      <div id="stage"></div>
+      <div class="loading" id="loading">Loading 3D preview…</div>
+      <div class="toolbar">
+        <label class="chip"><input type="checkbox" id="showCtx" checked> Show bauble and lights</label>
+        <label class="chip"><input type="checkbox" id="cutaway" checked> Cut-away</label>
+        <label class="chip">Cap finish <select id="finish" aria-label="Preview finish"><option value="gold">Gold</option><option value="silver">Silver</option><option value="white">White</option><option value="red">Red</option></select></label>
+        <button type="button" class="chip" id="resetView">Reset view</button>
+      </div>
+      <div class="readout" id="readout"></div>
+    </section>
+  </div>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+} }
+</script>
+<script id="manifold-wasm" type="application/octet-stream">__MANIFOLD_WASM_BASE64__</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+import Module from 'https://cdn.jsdelivr.net/npm/manifold-3d@3.0.0/manifold.js';
+
+const $ = (id) => document.getElementById(id);
+const SEG = 128;
+let mode = 'string';
+let wasm = null;
+let current = null;
+
+// ---------- settings ----------
+const NUM_IDS = ['wireHole','wireSlot','bulbD','spinLen','spinD','spinBore','pitch','grooveDepth','wireClip','discT','microHole','microSlot','litLen','ledSpacing','bareTop','collarClr',
+  'sphereD','cylD','cylT','ledgeD','cylH','clr','catch','skirt','slots','loopT'];
+function readParams() {
+  const p = { mode };
+  for (const id of NUM_IDS) { const v = parseFloat($(id).value); p[id] = Number.isFinite(v) ? v : parseFloat($(id).defaultValue); }
+  p.nBulbs = parseInt($('nBulbs').value, 10);
+  p.loop = $('loop').checked;
+  p.cleat = $('cleat').checked;
+  p.groove = $('groove').checked;
+  p.autoPitch = $('autoPitch').checked;
+  p.collar = $('collar').checked;
+  p.slots = Math.max(0, Math.round(p.slots));
+  return p;
+}
+
+// ---------- geometry (mm, Z up; the cap is modelled in print orientation, skirt down) ----------
+function derive(p) {
+  const g = {};
+  g.Rl = p.ledgeD / 2; g.Rc = p.cylD / 2; g.RcIn = g.Rc - p.cylT;
+  g.Rin = g.Rl + p.clr; g.Ro = g.Rin + p.skirt;
+  g.Rlip = g.Rl - p.catch;
+  g.cham = g.Rin - g.Rlip;
+  g.lipH = Math.max(1.6, g.cham + 0.5);
+  g.ledgeH = p.cylT;                      // LithophaneMaker makes the ledge as tall as the cylinder wall
+  g.zEnd = g.lipH + g.ledgeH + 0.2;       // the open end of the bauble collar, when the cap is on
+  g.discT = p.mode === 'micro' ? p.discT : 0;
+  g.zSeat = g.zEnd + g.discT;             // the cap's seat ring presses here (on the disc, or on the collar end)
+  g.Rseat = Math.min(g.Rin, Math.max(g.Rl - 1, g.RcIn + 0.5));
+  g.holeR = (p.mode === 'micro' ? p.microHole : p.wireHole) / 2;
+  g.slotW = p.mode === 'micro' ? p.microSlot : p.wireSlot;
+  g.Rtop = 7.5;
+  g.zTop = g.zSeat + 1.5 + (g.Ro - g.Rtop);
+  // inside roof: a 45° cone from the seat ring up towards the wire hole, so it prints with no flat bridge.
+  // It stops 1.6 mm under the top; any flat bit left round the hole is only a short ring.
+  g.zCeil = Math.min(g.zSeat + g.Rseat, g.zTop - 1.6);
+  g.Rceil = g.Rseat - (g.zCeil - g.zSeat);
+  g.zOut = (r) => r <= g.Rtop ? g.zTop : g.zSeat + 1.5 + (g.Ro - r);
+  // spindle
+  g.spinR = p.spinD / 2;
+  g.boreR = p.spinBore / 2;
+  g.discR = g.Rl - 0.3;
+  g.zBot = g.zEnd - p.spinLen;
+  // groove profile (print orientation is spindle tip up): 0.8 mm wide at the bottom where the wire sits,
+  // a flat face on the disc side and a 45° face on the tip side, so it prints without overhangs
+  g.grooveW = 0.8;
+  g.grooveTopW = g.grooveW + p.grooveDepth;
+  // sphere position (for the preview and checks)
+  const R = p.sphereD / 2;
+  g.sphR = R;
+  g.zNeck = g.zEnd - p.cylH;
+  g.zSph = g.zNeck - Math.sqrt(Math.max(0, R * R - g.RcIn * g.RcIn));
+  g.maxSpinLen = Math.floor(g.zEnd - (g.zSph - R + 5));
+
+  // spiral: a helix of length Lg and pitch P around radius r uses Lg·√((2πr/P)² + 1) of wire.
+  // Solve for P so the lit length (less ~15 mm for the turn at the bottom and the run to the clip) fills the spindle.
+  // the spiral runs from 3 mm above the bottom up to the bare stem; the clips for the end of the lights sit just above it
+  g.clipH = 7;
+  g.collarH = 6;
+  g.collarWall = 1.6;
+  g.collarOpen = 120;              // degrees cut out of the ring: the clip snaps on through a gap 0.87 × the stem width
+  g.zWindBot = g.zBot + 3;
+  g.zWindTop = g.zEnd - p.bareTop;
+  g.Lg = Math.max(0, g.zWindTop - g.zWindBot);
+  g.overhead = 3 + p.bareTop;                           // spindle length that holds no spiral
+  g.rW = p.groove ? g.spinR - p.grooveDepth + 0.3 : g.spinR + 0.3;  // centre line of the wound wire
+  g.circ = 2 * Math.PI * g.rW;
+  g.pMin = (p.groove ? g.grooveTopW : 1.4) + 0.6;                             // closest the turns can sit and still print as separate grooves
+  g.windLen = Math.max(0, p.litLen - 15);
+  const wireFor = (P) => g.Lg * Math.sqrt((g.circ / P) ** 2 + 1);
+  g.fit = 'manual';
+  if (p.autoPitch && g.Lg > 0) {
+    const ratio = g.windLen / g.Lg;
+    if (ratio <= 1.05) { g.fit = 'short'; g.pitch = Math.max(g.Lg * 4, g.pMin); }
+    else {
+      const pc = g.circ / Math.sqrt(ratio * ratio - 1);
+      if (pc < g.pMin) { g.fit = 'long'; g.pitch = g.pMin; } else { g.fit = 'ok'; g.pitch = pc; }
+    }
+  } else {
+    g.pitch = Math.max(p.pitch, 0.5);
+  }
+  g.turns = g.Lg / g.pitch;
+  g.helixLen = wireFor(g.pitch);
+  g.capacity = wireFor(g.pMin) + 15;
+  // spindle length that would take all the lights at the closest spacing, and one that gives about 2 turns' worth of gentle spiral
+  g.needLenLong = Math.ceil(g.windLen / Math.sqrt((g.circ / g.pMin) ** 2 + 1) + g.overhead);
+  g.needLenShort = Math.ceil(g.windLen / Math.sqrt(1.25) + g.overhead);
+  g.nLeds = p.ledSpacing > 0 ? Math.max(1, Math.round(p.litLen / p.ledSpacing)) : 0;
+  // cleat on the dome, opposite the wire slot
+  g.cleatR = Math.min(g.Ro - 5, 13.5);
+  return g;
+}
+
+function checks(p, g) {
+  const w = [];
+  if (g.Rlip <= g.Rc + 0.3) w.push(`Catch depth is too big: the snap lip would hit the ${p.cylD} mm cylinder. Use less than ${(g.Rl - g.Rc - 0.3).toFixed(1)} mm.`);
+  if (p.ledgeD <= p.cylD) w.push('The ledge must be wider than the cylinder, or there is nothing for the cap to clip under.');
+  if (g.holeR > g.Rtop - 1.5) w.push('The wire hole is too big for the top of the cap.');
+  if (g.slotW > 2 * g.holeR) w.push('The wire slot is wider than the wire hole.');
+  if (p.mode === 'micro') {
+    if (g.spinR * 2 > g.RcIn * 2 - 4) w.push(`The spindle (${p.spinD} mm) is too wide to wind wire around inside the ${(g.RcIn * 2).toFixed(1)} mm bauble opening.`);
+    if (g.spinR - g.boreR < (p.groove ? p.grooveDepth : 0) + 1) w.push('The spindle wall is too thin. Make the spindle wider, the hollow centre smaller, or the groove shallower.');
+    if (g.zBot < g.zSph - g.sphR + 5) w.push('The spindle is too long and would hit the bottom of the bauble.');
+    if (p.wireClip >= 1.5) w.push('A clip slot this wide won’t grip fine copper wire. Try 0.5–0.8 mm.');
+    if (g.fit === 'long') {
+      const over = Math.round(p.litLen - g.capacity);
+      // widest spindle that still leaves room to wind inside the opening, and the width needed at the longest length
+      const maxD = Math.floor(g.RcIn * 2 - 4);
+      const LgMax = g.maxSpinLen - g.overhead;
+      const needD = Math.ceil(2 * (g.pMin * Math.sqrt((g.windLen / LgMax) ** 2 - 1) / (2 * Math.PI) + (p.groove ? p.grooveDepth : 0) - 0.3));
+      const fix = g.needLenLong <= g.maxSpinLen
+        ? `make the spindle about ${g.needLenLong} mm long`
+        : needD <= maxD
+          ? `make the spindle ${g.maxSpinLen} mm long (the most this bauble takes) and about ${needD} mm wide`
+          : `use a bigger bauble or shorter lights (the largest spindle here, ${g.maxSpinLen} × ${maxD} mm, holds about ${Math.round((LgMax) * Math.sqrt((2 * Math.PI * (maxD / 2 - (p.groove ? p.grooveDepth : 0) + 0.3) / g.pMin) ** 2 + 1) + 15)} mm)`;
+      w.push(`About ${over} mm of the lights won’t fit on the spiral even with the turns as close as they print (${g.pMin.toFixed(1)} mm). To fit them all, ${fix}, or wrap the spare round the cleat.`);
+    }
+    if (g.fit === 'short') w.push(`The lights are too short to spiral up this spindle. Shorten the spindle to about ${Math.max(25, g.needLenShort)} mm.`);
+    if (g.Lg < 10) w.push(`The bare stem leaves almost no room for the spiral. Make the spindle longer than ${Math.ceil(g.overhead + 10)} mm or the bare stem shorter.`);
+    if (p.bareTop < p.cylH) w.push(`The spiral starts inside the ${p.cylH} mm cylinder, where those lights will be hidden. Make the bare stem at least ${Math.ceil(p.cylH + 3)} mm.`);
+    if (p.collar && p.collarClr > 0.4) w.push('A collar clearance this big won’t pinch fine wire. Try 0.1–0.25 mm.');
+    if (p.bareTop - g.clipH < g.discT + 1) w.push('The bare stem is too short to fit the wire clips. Make it at least ' + Math.ceil(g.clipH + 2) + ' mm.');
+    if (g.fit === 'manual' && p.groove && g.helixLen + 15 > p.litLen + 1) w.push(`At this spacing the spiral needs about ${Math.round(g.helixLen + 15)} mm of lit wire, but you have ${p.litLen} mm. The lights will stop part-way up the spindle.`);
+    if (g.fit === 'manual' && p.groove && p.litLen > g.helixLen + 35) w.push(`At this spacing the spiral holds about ${Math.round(g.helixLen + 15)} mm, so about ${Math.round(p.litLen - g.helixLen - 15)} mm of your lights will be left over. Tick “Space the spiral to fit my lights”, or wrap the spare round the cleat.`);
+  }
+  return w;
+}
+
+function buildParts(p) {
+  const { Manifold, CrossSection } = wasm;
+  const trash = [];
+  const K = (m) => { trash.push(m); return m; };
+  const g = derive(p);
+
+  // --- cap: revolved profile (skirt with snap lip, seat ring, 45° dome, flat top) ---
+  const pts = [
+    [g.Rin, 0], [g.Ro, 0], [g.Ro, g.zSeat + 1.5], [g.Rtop, g.zTop], [0, g.zTop], [0, g.zCeil],
+    [g.Rceil, g.zCeil], [g.Rseat, g.zSeat], [g.Rin, g.zSeat], [g.Rin, g.lipH], [g.Rlip, g.lipH], [g.Rlip, g.cham]
+  ];
+  let cap = K(K(CrossSection.ofPolygons([pts], 'EvenOdd')).revolve(SEG));
+
+  // flex slots through the skirt and lip
+  if (p.slots > 0) {
+    const y0 = g.Rlip - 0.6, y1 = g.Ro + 1, zb = -1, zt = g.zSeat + 0.5;
+    for (let i = 0; i < p.slots; i++) {
+      const ang = 360 * i / p.slots + 180 / p.slots;
+      cap = K(cap.subtract(K(K(K(Manifold.cube([1.5, y1 - y0, zt - zb])).translate([-0.75, y0, zb])).rotate([0, 0, ang]))));
+    }
+  }
+
+  // cable cleat on the dome at -X: a post with 45° flared horns, so it prints without supports
+  if (p.cleat) {
+    const poly = [[-2, 0], [2, 0], [2, 7], [6, 11], [6, 12.5], [-6, 12.5], [-6, 11], [-2, 7]];
+    const thick = 4;
+    let cleat = K(K(CrossSection.ofPolygons([poly], 'EvenOdd')).extrude(thick));
+    cleat = K(K(K(cleat.rotate([90, 0, 0])).rotate([0, 0, 90])).translate([-thick / 2, 0, 0]));
+    const zBase = g.zOut(g.cleatR + thick / 2) - 0.6;
+    cleat = K(cleat.translate([-g.cleatR, 0, zBase]));
+    cap = K(cap.add(cleat));
+  }
+
+  // centre wire hole, plus an optional side slot out to the rim along +X
+  if (g.holeR > 0) cap = K(cap.subtract(K(K(Manifold.cylinder(g.zTop + 20, g.holeR, g.holeR, 48)).translate([0, 0, -2]))));
+  if (g.slotW > 0) cap = K(cap.subtract(K(K(Manifold.cube([g.Ro + 2, g.slotW, g.zTop + 20])).translate([0, -g.slotW / 2, -2]))));
+
+  let top = g.zTop + (p.cleat ? 0 : 0);
+  if (p.cleat) top = Math.max(top, g.zOut(g.cleatR + 2) - 0.6 + 12.5);
+  if (p.loop) {
+    const t = p.loopT, w = 4;
+    const aIn = Math.max(3.5, g.holeR + 1.5);
+    const zc = g.zTop + 2;
+    // pointed (teardrop) arch: round up to 45°, then straight to a peak, so its underside never overhangs more than 45°
+    const half = (r) => { const q = []; for (let i = 0; i <= 12; i++) { const a = (Math.PI / 4) * i / 12; q.push([r * Math.cos(a), r * Math.sin(a)]); } return q; };
+    const tear = (r) => [...half(r), [0, r * Math.SQRT2], ...half(r).reverse().map(([x, y]) => [-x, y])];
+    const archPoly = [...tear(aIn + t), ...tear(aIn).reverse()];
+    const arch = K(K(K(CrossSection.ofPolygons([archPoly], 'EvenOdd')).extrude(w)).translate([0, 0, -w / 2])).rotate([90, 0, 0]);
+    trash.push(arch);
+    const zb = g.zOut(aIn + t) - 1.2;
+    const postH = zc - zb + 0.01;
+    const postR = K(K(Manifold.cube([t, w, postH])).translate([aIn, -w / 2, zb]));
+    const postL = K(K(Manifold.cube([t, w, postH])).translate([-aIn - t, -w / 2, zb]));
+    // the loop spans along Y, clear of the wire slot (+X) and the cleat (-X)
+    const bail = K(K(Manifold.union([K(arch.translate([0, 0, zc])), postR, postL])).rotate([0, 0, 90]));
+    cap = K(cap.add(bail));
+    top = Math.max(top, zc + (aIn + t) * Math.SQRT2);
+  }
+
+  const parts = [];
+  const capShaded = K(cap.calculateNormals(3, 40));
+  parts.push({ key: 'cap', name: p.mode === 'micro' ? 'cap-micro-lights' : 'cap-string-lights', view: capShaded.getMesh(3), print: cap.getMesh(),
+    size: [2 * g.Ro, 2 * g.Ro, top] });
+
+  // --- micro-light spindle: disc clamped under the cap, hollow spindle hanging down, spiral groove, clip slots ---
+  if (p.mode === 'micro') {
+    const prof = [
+      [g.boreR, g.zBot], [g.spinR, g.zBot], [g.spinR, g.zEnd], [g.discR, g.zEnd], [g.discR, g.zEnd + g.discT], [g.boreR, g.zEnd + g.discT]
+    ];
+    let spin = K(K(CrossSection.ofPolygons([prof], 'EvenOdd')).revolve(SEG));
+    // soften the bottom edge where the wire turns from the hollow centre to the outside
+    const ch = Math.min(1, (g.spinR - g.boreR) / 3);
+    spin = K(spin.subtract(K(K(Manifold.cylinder(ch + 0.01, g.boreR + ch, g.boreR, 48)).translate([0, 0, g.zBot - 0.01]))));
+    if (p.groove && g.Lg > 1) {
+      const L = g.Lg;
+      // Sweep the groove's cross-section (in the plane through the axis) straight along the helix as a mesh.
+      // Disc side: a straight face. Tip side (up when printed): a 45° face, so nothing overhangs.
+      const rb = g.spinR - p.grooveDepth, rOut = g.spinR + 0.5, hw = g.grooveW / 2;
+      const prof = [[rb, hw], [rb, -hw], [g.spinR, -hw - p.grooveDepth], [rOut, -hw - p.grooveDepth], [rOut, hw]];
+      const steps = Math.max(8, Math.ceil(g.turns * 72)), K5 = prof.length;
+      const vp = new Float32Array((steps + 1) * K5 * 3), tv = [];
+      for (let i = 0; i <= steps; i++) {
+        const th = 2 * Math.PI * g.turns * i / steps, z0 = g.zWindBot + L * i / steps;
+        prof.forEach(([r, a], k) => { const o = (i * K5 + k) * 3; vp[o] = r * Math.cos(th); vp[o + 1] = r * Math.sin(th); vp[o + 2] = z0 + a; });
+      }
+      for (let i = 0; i < steps; i++) for (let k = 0; k < K5; k++) {
+        const a0 = i * K5 + k, a1 = i * K5 + (k + 1) % K5, b0 = a0 + K5, b1 = a1 + K5;
+        tv.push(a0, b0, a1, a1, b0, b1);
+      }
+      for (let k = 1; k < K5 - 1; k++) { tv.push(0, k, k + 1); const e = steps * K5; tv.push(e, e + k + 1, e + k); }
+      const helix = K(new Manifold(new wasm.Mesh({ numProp: 3, vertProperties: vp, triVerts: new Uint32Array(tv) })));
+      spin = K(spin.subtract(helix));
+    }
+    // clip at the bottom: a thin slit up one side of the spindle wall
+    spin = K(spin.subtract(K(K(Manifold.cube([p.wireClip, g.spinR + 1, 6])).translate([-p.wireClip / 2, 0, g.zBot - 1]))));
+    // clips for the end of the lights: two thin slits in the bare stem just above the spiral, one where the groove
+    // ends and one opposite. Each has a wider lead-in at the surface so the wire is easy to press in.
+    if (g.Lg > 1) {
+      const aEnd = (360 * g.turns) % 360, z0 = g.zWindTop + 0.5, d = Math.min(2, g.spinR - g.boreR - 1);
+      for (const ang of [aEnd, aEnd + 180]) {
+        const slit = K(K(Manifold.cube([d + 1, p.wireClip, g.clipH])).translate([g.spinR - d, -p.wireClip / 2, z0]));
+        const lead = K(K(Manifold.cube([1.6, p.wireClip + 1, g.clipH])).translate([g.spinR - 0.6, -(p.wireClip + 1) / 2, z0]));
+        spin = K(spin.subtract(K(K(Manifold.union([slit, lead])).rotate([0, 0, ang]))));
+      }
+    }
+    // clips under the disc: two thin radial slits inside the bauble opening
+    const s0 = g.spinR + 0.8, s1 = Math.min(g.RcIn - 1, g.spinR + 7);
+    if (s1 > s0 + 1) {
+      for (const ang of [0, 180]) {
+        const slit = K(K(K(Manifold.cube([s1 - s0, p.wireClip, g.discT + 2])).translate([s0, -p.wireClip / 2, g.zEnd - 1])).rotate([0, 0, ang + 90]));
+        spin = K(spin.subtract(slit));
+      }
+    }
+    const sShaded = K(spin.calculateNormals(3, 40));
+    // print orientation: flipped so the disc lies on the bed
+    const sPrint = K(K(spin.rotate([180, 0, 0])).translate([0, 0, g.zEnd + g.discT]));
+    parts.push({ key: 'spindle', name: `spindle-${Math.round(p.spinLen)}mm`, view: sShaded.getMesh(3), print: sPrint.getMesh(),
+      size: [2 * g.discR, 2 * g.discR, g.zEnd + g.discT - g.zBot] });
+
+    // snap-on clip collar: a C-shaped clip with a third of the ring cut away, so it snaps onto the bare stem from the
+    // side and pinches the end of the wire against it. The tips have 45° lead-ins that spread it as you push it on.
+    // Drawn as a flat C and extruded, so it prints flat with no supports.
+    if (p.collar) {
+      const H = g.collarH, ri = g.spinR + p.collarClr, ro = ri + g.collarWall, c = 0.8;
+      const half = (g.collarOpen / 2) * Math.PI / 180, a0 = half, a1 = 2 * Math.PI - half, n = 96;
+      const P = (r, a) => [r * Math.cos(a), r * Math.sin(a)];
+      const ring = [];
+      for (let i = 0; i <= n; i++) ring.push(P(ro, a0 + (a1 - a0) * i / n));          // outside, round the back
+      ring.push(P(ri + c, a1));                                                       // lead-in at one tip
+      for (let i = 0; i <= n; i++) ring.push(P(ri, a1 - c / ri - (a1 - a0 - 2 * c / ri) * i / n)); // inside, back again
+      ring.push(P(ri + c, a0));                                                       // lead-in at the other tip
+      const col = K(K(CrossSection.ofPolygons([ring], 'EvenOdd')).extrude(H));
+      // in the preview it sits just above the end of the spiral, its gap turned away from the wire
+      const aEnd = (360 * g.turns) % 360;
+      const colView = K(K(K(col.rotate([0, 0, aEnd + 180])).translate([0, 0, g.zWindTop + 1])).calculateNormals(3, 40));
+      parts.push({ key: 'collar', name: `collar-${p.spinD}mm`, view: colView.getMesh(3), print: col.getMesh(), size: [2 * ro, 2 * ro, H] });
+    }
+  }
+
+  for (const m of trash) { try { m.delete(); } catch (e) {} }
+  return { parts, g };
+}
+
+// ---------- STL + zip ----------
+function toSTL(mesh) {
+  const np = mesh.numProp, vp = mesh.vertProperties, tv = mesh.triVerts;
+  const n = tv.length / 3;
+  const buf = new ArrayBuffer(84 + n * 50);
+  const dv = new DataView(buf);
+  const head = 'Bauble Cap Maker';
+  for (let i = 0; i < head.length; i++) dv.setUint8(i, head.charCodeAt(i));
+  dv.setUint32(80, n, true);
+  let o = 84;
+  const v = (k) => [vp[k * np], vp[k * np + 1], vp[k * np + 2]];
+  for (let i = 0; i < n; i++) {
+    const a = v(tv[3 * i]), b = v(tv[3 * i + 1]), c = v(tv[3 * i + 2]);
+    const ux = b[0] - a[0], uy = b[1] - a[1], uz = b[2] - a[2];
+    const wx = c[0] - a[0], wy = c[1] - a[1], wz = c[2] - a[2];
+    let nx = uy * wz - uz * wy, ny = uz * wx - ux * wz, nz = ux * wy - uy * wx;
+    const l = Math.hypot(nx, ny, nz) || 1; nx /= l; ny /= l; nz /= l;
+    for (const f of [nx, ny, nz, ...a, ...b, ...c]) { dv.setFloat32(o, f, true); o += 4; }
+    dv.setUint16(o, 0, true); o += 2;
+  }
+  return new Uint8Array(buf);
+}
+const CRC_T = (() => { const t = new Uint32Array(256); for (let n = 0; n < 256; n++) { let c = n; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[n] = c >>> 0; } return t; })();
+function crc32(d) { let c = 0xFFFFFFFF; for (let i = 0; i < d.length; i++) c = CRC_T[(c ^ d[i]) & 0xFF] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
+function zipFiles(files) {
+  const enc = new TextEncoder(), chunks = [], central = [];
+  let offset = 0;
+  for (const { name, data } of files) {
+    const nm = enc.encode(name), crc = crc32(data), sz = data.length;
+    const lh = new DataView(new ArrayBuffer(30));
+    lh.setUint32(0, 0x04034b50, true); lh.setUint16(4, 20, true);
+    lh.setUint32(14, crc, true); lh.setUint32(18, sz, true); lh.setUint32(22, sz, true); lh.setUint16(26, nm.length, true);
+    chunks.push(lh, nm, data);
+    const cd = new DataView(new ArrayBuffer(46));
+    cd.setUint32(0, 0x02014b50, true); cd.setUint16(4, 20, true); cd.setUint16(6, 20, true);
+    cd.setUint32(16, crc, true); cd.setUint32(20, sz, true); cd.setUint32(24, sz, true); cd.setUint16(28, nm.length, true);
+    cd.setUint32(42, offset, true);
+    central.push(cd, nm);
+    offset += 30 + nm.length + sz;
+  }
+  const cdSize = central.reduce((s, c) => s + c.byteLength, 0);
+  const end = new DataView(new ArrayBuffer(22));
+  end.setUint32(0, 0x06054b50, true); end.setUint16(8, files.length, true); end.setUint16(10, files.length, true);
+  end.setUint32(12, cdSize, true); end.setUint32(16, offset, true);
+  return new Blob([...chunks, ...central, end], { type: 'application/zip' });
+}
+
+// ---------- 3D view ----------
+const stage = $('stage');
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.localClippingEnabled = true;
+stage.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(35, 1, 1, 3000);
+camera.up.set(0, 0, 1);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xfff7e8, 0x2a2f33, 1.6));
+const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(80, -120, 160); scene.add(key);
+const rim = new THREE.DirectionalLight(0xc8e0ff, 1.0); rim.position.set(-120, 90, 60); scene.add(rim);
+
+const FINISH = {
+  gold: { color: 0xc9a045, metalness: 0.75, roughness: 0.32 },
+  silver: { color: 0xc4c9cf, metalness: 0.8, roughness: 0.28 },
+  white: { color: 0xf1f1ec, metalness: 0.0, roughness: 0.55 },
+  red: { color: 0xa3202a, metalness: 0.35, roughness: 0.4 },
+};
+const clipPlane = new THREE.Plane(new THREE.Vector3(0, -1, 0), 0);
+const capMat = new THREE.MeshStandardMaterial({ ...FINISH.gold, side: THREE.DoubleSide });
+const spindleMat = new THREE.MeshStandardMaterial({ color: 0x8a949b, roughness: 0.55, side: THREE.DoubleSide });
+const collarMat = new THREE.MeshStandardMaterial({ color: 0xd99a3c, roughness: 0.5, side: THREE.DoubleSide });
+const ghostMat = new THREE.MeshStandardMaterial({ color: 0xeef0f0, transparent: true, opacity: 0.22, roughness: 0.3, depthWrite: false, side: THREE.DoubleSide });
+const neckMat = new THREE.MeshStandardMaterial({ color: 0xf4f4ef, transparent: true, opacity: 0.55, roughness: 0.6, side: THREE.DoubleSide });
+const lightMat = new THREE.MeshStandardMaterial({ color: 0xfff1c9, emissive: 0xffc25a, emissiveIntensity: 1.0, transparent: true, opacity: 0.95 });
+const wireMat = new THREE.MeshStandardMaterial({ color: 0x2f5d3a, roughness: 0.6 });
+const copperMat = new THREE.MeshStandardMaterial({ color: 0xc27a3e, metalness: 0.7, roughness: 0.35 });
+const ALL_MATS = [capMat, spindleMat, collarMat, ghostMat, neckMat, lightMat, wireMat, copperMat];
+
+const partGroup = new THREE.Group(); scene.add(partGroup);
+const ctx = new THREE.Group(); scene.add(ctx);
+
+function resize() {
+  const w = stage.clientWidth, h = stage.clientHeight;
+  renderer.setSize(w, h, false); camera.aspect = w / Math.max(h, 1); camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage);
+
+let frameBox = null;
+function frame(box, keepAngle) {
+  frameBox = box;
+  const c = box.getCenter(new THREE.Vector3()), s = box.getSize(new THREE.Vector3());
+  const r = Math.max(s.x, s.y, s.z) * 0.62;
+  const dist = r / Math.tan((camera.fov * Math.PI / 180) / 2) * 1.05;
+  if (!keepAngle) {
+    const dir = new THREE.Vector3(0.55, -0.78, 0.3).normalize();
+    camera.position.copy(c).addScaledVector(dir, dist);
+  } else {
+    const d = camera.position.clone().sub(controls.target);
+    camera.position.copy(c).add(d);
+  }
+  controls.target.copy(c); controls.update();
+}
+
+function lathe(points, segs = 96) {
+  const geo = new THREE.LatheGeometry(points.map(([r, z]) => new THREE.Vector2(r, z)), segs);
+  geo.rotateX(Math.PI / 2);
+  return geo;
+}
+function cylZ(r, h, z0, mat, segs = 40) {
+  const geo = new THREE.CylinderGeometry(r, r, h, segs); geo.rotateX(Math.PI / 2);
+  const m = new THREE.Mesh(geo, mat); m.position.z = z0 + h / 2; return m;
+}
+function tube(points, radius, mat) {
+  const curve = new THREE.CatmullRomCurve3(points);
+  return { mesh: new THREE.Mesh(new THREE.TubeGeometry(curve, Math.max(64, points.length * 6), radius, 8, false), mat), curve };
+}
+
+function buildContext(p, g) {
+  ctx.clear();
+  // bauble collar (ledge step at the open end, cylinder down to the sphere) and the sphere
+  const zs = g.zEnd, zl = zs - g.ledgeH;
+  ctx.add(new THREE.Mesh(lathe([[g.RcIn, zs], [g.Rl, zs], [g.Rl, zl], [g.Rc, zl], [g.Rc, g.zNeck], [g.RcIn, g.zNeck], [g.RcIn, zs]]), neckMat));
+  const a0 = Math.asin(Math.min(0.99, g.RcIn / g.sphR));
+  const sph = new THREE.SphereGeometry(g.sphR, 96, 64, 0, Math.PI * 2, a0, Math.PI - a0);
+  sph.rotateX(Math.PI / 2);
+  const s = new THREE.Mesh(sph, ghostMat); s.position.z = g.zSph; ctx.add(s);
+
+  if (p.mode === 'string') {
+    // bunched bulbs hanging inside, wires running up through the hole and away over the top
+    const n = p.nBulbs, zb = g.zSph + g.sphR * 0.15;
+    const ends = [];
+    for (let i = 0; i < n; i++) {
+      const a = (i / n) * Math.PI * 2 + 0.4, rr = n > 1 ? p.bulbD * 0.75 : 0;
+      const x = Math.cos(a) * rr, y = Math.sin(a) * rr, z = zb + (i % 2) * 5;
+      const bulb = new THREE.Mesh(new THREE.CapsuleGeometry(p.bulbD / 2, 5, 6, 20), lightMat);
+      bulb.rotation.x = Math.PI / 2; bulb.position.set(x, y, z); ctx.add(bulb);
+      const holder = cylZ(p.bulbD / 2 + 0.7, 6, z + 4, wireMat); holder.position.x = x; holder.position.y = y; ctx.add(holder);
+      ends.push(new THREE.Vector3(x, y, z + 10));
+    }
+    ends.forEach((p0, k) => {
+      const off = (k - (n - 1) / 2) * 1.2;
+      ctx.add(tube([p0, new THREE.Vector3(off * 0.5, off * 0.3, g.zNeck), new THREE.Vector3(off * 0.4, 0, g.zTop + 1),
+        new THREE.Vector3(off * 0.4 + 6, 0, g.zTop + 9), new THREE.Vector3(off * 0.4 + 26, 0, g.zTop + 16)], 0.9, wireMat).mesh);
+    });
+  } else {
+    // copper wire: in over the cleat, down the hollow centre, out of the bottom, spiralling back up to a clip above the spiral
+    const pts = [];
+    pts.push(new THREE.Vector3(-g.cleatR - 14, 0, g.zTop + 4));
+    pts.push(new THREE.Vector3(-g.cleatR, 0, g.zOut(g.cleatR) + 6));
+    pts.push(new THREE.Vector3(-3, 0, g.zTop + 3));
+    pts.push(new THREE.Vector3(0, 0, g.zTop));
+    pts.push(new THREE.Vector3(0, 0, g.zEnd));
+    pts.push(new THREE.Vector3(0, 0, g.zBot + 2));
+    pts.push(new THREE.Vector3(0, 0, g.zBot - 1.5));
+    pts.push(new THREE.Vector3(g.spinR * 0.8, 0, g.zBot - 1.5));
+    // lit part: from the bottom exit, up the spiral (only as far as the lights reach), then into a clip slot
+    const L = g.Lg, rW = g.rW;
+    const reach = Math.min(1, g.windLen / Math.max(1, g.helixLen));
+    const turns = g.turns * reach, steps = Math.max(8, Math.ceil(turns * 24));
+    const lit = [new THREE.Vector3(g.spinR * 0.8, 0, g.zBot - 1.5)];
+    for (let i = 0; i <= steps; i++) {
+      const t = i / steps, a = t * turns * Math.PI * 2;
+      lit.push(new THREE.Vector3(Math.cos(a) * rW, Math.sin(a) * rW, g.zWindBot + t * L * reach));
+    }
+    if (reach >= 0.999) {
+      const last = lit[lit.length - 1], aEnd = Math.atan2(last.y, last.x);
+      // up into the clip slot above the end of the spiral
+      lit.push(new THREE.Vector3(Math.cos(aEnd) * (g.spinR - 1), Math.sin(aEnd) * (g.spinR - 1), g.zWindTop + g.clipH * 0.6));
+    }
+    ctx.add(tube([...pts, ...lit], 0.35, copperMat).mesh);
+    // micro LEDs at the real spacing along the lit part, the first one where the wire leaves the bottom
+    const litCurve = new THREE.CatmullRomCurve3(lit);
+    const len = litCurve.getLength();
+    if (p.ledSpacing > 0) {
+      for (let d = 0, k = 0; d <= len && k < g.nLeds; d += p.ledSpacing, k++) {
+        const led = new THREE.Mesh(new THREE.SphereGeometry(1.4, 12, 8), lightMat);
+        led.position.copy(litCurve.getPointAt(Math.min(1, d / len))); ctx.add(led);
+      }
+    }
+  }
+  ctx.visible = $('showCtx').checked;
+}
+
+function meshToGeometry(mesh) {
+  const np = mesh.numProp, vp = mesh.vertProperties, nv = vp.length / np;
+  const pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3);
+  for (let i = 0; i < nv; i++) {
+    pos[3 * i] = vp[i * np]; pos[3 * i + 1] = vp[i * np + 1]; pos[3 * i + 2] = vp[i * np + 2];
+    nor[3 * i] = vp[i * np + 3]; nor[3 * i + 1] = vp[i * np + 4]; nor[3 * i + 2] = vp[i * np + 5];
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  geo.setAttribute('normal', new THREE.BufferAttribute(nor, 3));
+  geo.setIndex(new THREE.BufferAttribute(new Uint32Array(mesh.triVerts), 1));
+  return geo;
+}
+function showParts(parts) {
+  for (const c of [...partGroup.children]) { c.geometry.dispose(); partGroup.remove(c); }
+  for (const part of parts) partGroup.add(new THREE.Mesh(meshToGeometry(part.view), part.key === 'cap' ? capMat : part.key === 'collar' ? collarMat : spindleMat));
+}
+
+function applyCut() {
+  const planes = $('cutaway').checked ? [clipPlane] : [];
+  for (const m of ALL_MATS) { m.clippingPlanes = planes; m.needsUpdate = true; }
+}
+
+// ---------- update loop ----------
+let timer = null, firstFrame = true, lastMode = null;
+function schedule() { clearTimeout(timer); timer = setTimeout(rebuild, 120); }
+function rebuild() {
+  if (!wasm) return;
+  const p = readParams();
+  const g = derive(p);
+  $('warnings').replaceChildren(...checks(p, g).map((w) => { const d = document.createElement('div'); d.className = 'warn'; d.textContent = w; return d; }));
+  try {
+    const t0 = performance.now();
+    const res = buildParts(p);
+    current = { ...res, p };
+    showParts(res.parts);
+    buildContext(p, g);
+    const box = new THREE.Box3().setFromObject(partGroup);
+    box.expandByPoint(new THREE.Vector3(0, 0, g.zSph - g.sphR * 0.3));
+    frame(box, !firstFrame && lastMode === p.mode); firstFrame = false; lastMode = p.mode;
+
+    const fmt = (s) => `${s[0].toFixed(1)} × ${s[1].toFixed(1)} × ${s[2].toFixed(1)} mm`;
+    $('parts').replaceChildren(...res.parts.map((pt) => {
+      const li = document.createElement('li'); const b = document.createElement('b');
+      b.textContent = { cap: 'Cap', spindle: 'Spindle', collar: 'Collar' }[pt.key]; li.append(b, ` ${fmt(pt.size)}`); return li;
+    }));
+    if (p.mode === 'micro') {
+      const pin = $('pitch');
+      pin.disabled = p.autoPitch;
+      if (p.autoPitch) pin.value = g.pitch.toFixed(1);
+    }
+    const items = p.mode === 'micro'
+      ? [['Spindle', `${p.spinLen} × ${p.spinD} mm, spiral ${Math.round(g.Lg)} mm`], ['Spiral', `${g.turns.toFixed(1)} turns, ${g.pitch.toFixed(1)} mm apart`],
+         ['Holds', `${Math.round(g.helixLen + 15)} mm of lights`], ['LEDs', `${g.nLeds}`], ['Print', `cap skirt down, spindle disc down${p.collar ? ', collar flat' : ''}, no supports`]]
+      : [['Wire hole', `${p.wireHole} mm`], ['Slot', `${p.wireSlot} mm`], ['Print', 'skirt down, no supports']];
+    $('readout').replaceChildren(...items.map(([k, v]) => { const s = document.createElement('span'); const b = document.createElement('b'); b.textContent = v; s.append(k + ' ', b); return s; }));
+    $('download').disabled = false;
+    $('status').textContent = `Model up to date (${Math.round(performance.now() - t0)} ms).`;
+  } catch (e) {
+    console.error(e);
+    $('status').textContent = 'These settings could not be built. Undo the last change and try again.';
+    $('download').disabled = true;
+  }
+}
+
+function setMode(m) {
+  mode = m;
+  $('mode-string').setAttribute('aria-pressed', String(m === 'string'));
+  $('mode-micro').setAttribute('aria-pressed', String(m === 'micro'));
+  $('grp-string').hidden = m !== 'string';
+  $('grp-micro').hidden = m !== 'micro';
+  rebuild();
+}
+$('mode-string').addEventListener('click', () => setMode('string'));
+$('mode-micro').addEventListener('click', () => setMode('micro'));
+document.querySelectorAll('.rail input, .rail select').forEach((el) => el.addEventListener('input', schedule));
+$('showCtx').addEventListener('change', () => { ctx.visible = $('showCtx').checked; });
+$('cutaway').addEventListener('change', applyCut);
+$('finish').addEventListener('change', () => { capMat.setValues(FINISH[$('finish').value]); capMat.needsUpdate = true; });
+$('resetView').addEventListener('click', () => frameBox && frame(frameBox, false));
+
+$('download').addEventListener('click', async () => {
+  if (!current) return;
+  const p = current.p;
+  const tag = `${p.ledgeD}mm-ledge`;
+  const files = current.parts.map((pt) => ({ name: `bauble-${pt.name}-${tag}.stl`, data: toSTL(pt.print) }));
+  const zipName = p.mode === 'micro' ? `bauble-cap-micro-lights-${tag}.zip` : `bauble-cap-string-lights-${tag}.zip`;
+  const blob = zipFiles(files);
+  const downloads = window.claude?.use ? await window.claude.use('downloads').catch(() => null) : null;
+  if (downloads) {
+    try {
+      await downloads.save({ filename: zipName, data: blob });
+      $('status').textContent = `Saved ${zipName}. Unzip it to get the STL files.`;
+    } catch (e) {
+      $('status').textContent = e && e.code === 'declined' ? 'Download cancelled.' : 'This view can’t save files. Open the page on its own and try again.';
+    }
+    return;
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = zipName; document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+  $('status').textContent = `Saved ${zipName}. Unzip it to get the STL files.`;
+});
+
+// Bauble sizes from Lithophane Studio: first from the address (its "Open the end cap maker" button passes
+// #sphereD=…&cylD=…&cylT=…&ledgeD=…&cylH=…), otherwise the sizes last used in the studio on this site.
+(() => {
+  const IDS = ['sphereD', 'cylD', 'cylT', 'ledgeD', 'cylH'];
+  const h = new URLSearchParams(location.hash.slice(1));
+  let src = null, from = '';
+  if (IDS.some((id) => h.has(id))) { src = Object.fromEntries(IDS.map((id) => [id, h.get(id)])); from = 'link'; }
+  else {
+    try { const st = JSON.parse(localStorage.getItem('litho-studio') || 'null'); if (st && IDS.every((id) => Number.isFinite(+st[id]))) { src = st; from = 'saved'; } } catch {}
+  }
+  if (!src) return;
+  let used = 0;
+  for (const id of IDS) { const v = parseFloat(src[id]); if (Number.isFinite(v) && v > 0) { $(id).value = v; used++; } }
+  if (used) $('bauble-src').textContent = from === 'link'
+    ? 'Sizes from your bauble in Lithophane Studio.'
+    : 'Sizes from the bauble you last set up in Lithophane Studio. If you change the bauble there, reload this page.';
+})();
+
+renderer.setAnimationLoop(() => { controls.update(); renderer.render(scene, camera); });
+applyCut();
+
+(async () => {
+  try {
+    const b64 = $('manifold-wasm').textContent.trim();
+    const bin = Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+    wasm = await Module({ wasmBinary: bin });
+    wasm.setup();
+    $('loading').remove();
+    resize();
+    rebuild();
+  } catch (e) {
+    console.error(e);
+    $('status').textContent = 'The 3D engine failed to load. Reload the page to try again.';
+    $('loading').textContent = 'The 3D engine failed to load.';
+  }
+})();
+</script>

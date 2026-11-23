@@ -1,0 +1,10 @@
+services:
+  bauble-cap:
+    build: .
+    pull_policy: build
+    container_name: bauble-cap
+    environment:
+      - HTTP_PORT=${HTTP_PORT:-8081}
+    ports:
+      - "${HTTP_PORT:-8081}:${HTTP_PORT:-8081}"
+    restart: unless-stopped
