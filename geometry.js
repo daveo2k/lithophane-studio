@@ -209,25 +209,37 @@ const Litho = (() => {
     return assemble(rings, ringT, cols, { wrapU: true, loop: true });
   }
 
-  const NECK_BLEND = 2.5;   // mm of image, next to the neck, that eases up to full thickness
+  const NECK_BLEND = 2.5;   // mm of image, past the neck join, that eases up to full thickness
 
-  // Bauble: hangs from its neck (Z up). Outside: bottom pole → image rows → neck → ledge → end face; inside: bore →
-  // smooth inner sphere → inner pole. Neck sizes match the end cap maker: neck height runs from where a sphere of
-  // the full diameter meets the neck's bore, to the open end; the ledge is as tall as the neck wall.
+  // The rounded fillet between the sphere and the neck, on the outside. Returns its radius as built (capped so it
+  // ends below the cap ledge), where it touches the neck (zc) and the sphere (polar angle phiT from the neck end).
+  function neckFillet(p) {
+    const R = p.sphereD / 2, Rc = p.cylD / 2, RcIn = Rc - p.cylT;
+    const zLedge = Math.sqrt(R * R - RcIn * RcIn) + p.cylH - p.cylT;
+    const at = (f) => { const zc = Math.sqrt((R + f) ** 2 - (Rc + f) ** 2); return { f, zc, phiT: Math.atan2(Rc + f, zc) }; };
+    let f = Math.max(0, +p.neckFillet || 0);
+    while (f > 0 && at(f).zc > zLedge - 0.5) f = Math.max(0, f - 0.1);
+    f = Math.round(f * 10) / 10;
+    return at(f);
+  }
+
+  // Bauble: hangs from its neck (Z up). Outside: bottom pole → image rows → fillet → neck → ledge → end face; inside:
+  // bore → smooth inner sphere → inner pole. Neck sizes match the end cap maker: neck height runs from where a
+  // sphere of the full diameter meets the neck's bore, to the open end; the ledge is as tall as the neck wall.
   function bauble(p, T0, cols, rows) {
     const a = imageArea('bauble', p);
-    // Ease the image up to full thickness over the last few mm before the neck, so the sphere reaches its full
-    // diameter exactly where it meets the neck. Without this the thin image edge sits inside the neck's outer wall
-    // and leaves an inward notch between sphere and neck.
-    const T = Float32Array.from(T0), dv = a.V / (rows - 1), blend = NECK_BLEND;
-    for (let r = 0; r < rows && r * dv < blend; r++) {
-      const s = r * dv / blend, w = 1 - s * s * (3 - 2 * s);    // 1 at the neck, easing to 0 at the blend's end
-      for (let c = 0; c < cols; c++) { const i = r * cols + c; T[i] += (p.maxT - T[i]) * w; }
-    }
     const R = p.sphereD / 2, Ri = R - p.maxT, Rc = p.cylD / 2, RcIn = Rc - p.cylT, Rl = p.ledgeD / 2;
     const zEnd = Math.sqrt(R * R - RcIn * RcIn) + p.cylH, zLedge = zEnd - p.cylT;
     const zMeet = Math.sqrt(R * R - Rc * Rc) + 0.3;
     const zIn = Math.sqrt(Ri * Ri - RcIn * RcIn);
+    const fil = neckFillet(p), psiT = Math.PI - fil.phiT;       // where the outside leaves the sphere for the fillet
+    // The image runs at full thickness up to the fillet, then eases down to the photo over NECK_BLEND mm, so the
+    // sphere is at its full diameter where it meets the fillet (or the neck) and leaves no notch.
+    const T = Float32Array.from(T0), dv = a.V / (rows - 1), off = R * (a.psiEnd - psiT);
+    for (let r = 0; r < rows && r * dv < off + NECK_BLEND; r++) {
+      const s = Math.max(0, (r * dv - off) / NECK_BLEND), w = 1 - s * s * (3 - 2 * s);
+      for (let c = 0; c < cols; c++) { const i = r * cols + c; T[i] += (p.maxT - T[i]) * w; }
+    }
     const ang = (c) => -Math.PI / 2 + 2 * Math.PI * (c / cols - 0.5);
     const psiAt = (r) => a.psiEnd - (a.psiEnd - a.psi0) * r / (rows - 1);    // row 0 at the neck
     const rings = [], ringT = [];
@@ -237,14 +249,26 @@ const Litho = (() => {
       for (let c = 0; c < cols; c++) { const A = ang(c); ring.set([rad * Math.cos(A), rad * Math.sin(A), z], c * 3); }
       rings.push(ring); ringT.push(rt);
     };
-    // outside, from the bottom up
+    // outside, from the bottom up; rows under the fillet are left out, as the fillet covers them
+    const solid = p.maxT + 1;
     for (let r = rows - 1; r >= 0; r--) {
-      const psi = psiAt(r), ring = new Float32Array(cols * 3), rt = new Float32Array(cols);
+      const psi = psiAt(r);
+      if (fil.f > 0 && psi >= psiT - 1e-6) break;
+      const ring = new Float32Array(cols * 3), rt = new Float32Array(cols);
       for (let c = 0; c < cols; c++) { const t = T[r * cols + c]; ring.set(sph(Ri + t, psi)(ang(c)), c * 3); rt[c] = t; }
       rings.push(ring); ringT.push(rt);
     }
-    const solid = p.maxT + 1;
-    circle(Rc, zMeet, solid); circle(Rc, zLedge, solid); circle(Rl, zLedge, solid); circle(Rl, zEnd, solid);
+    if (fil.f > 0) {
+      // the fillet: an arc round (Rc + f, zc), from where it touches the sphere to where it touches the neck
+      const cx = Rc + fil.f, th0 = Math.atan2(-fil.zc, -cx), th1 = -Math.PI, n = Math.max(6, Math.ceil(fil.f * 3));
+      for (let i = 0; i <= n; i++) {
+        const th = th0 + (th1 - th0) * i / n;
+        circle(i === n ? Rc : cx + fil.f * Math.cos(th), fil.zc + fil.f * Math.sin(th), solid);
+      }
+    } else {
+      circle(Rc, zMeet, solid);
+    }
+    circle(Rc, zLedge, solid); circle(Rl, zLedge, solid); circle(Rl, zEnd, solid);
     circle(RcIn, zEnd, solid); circle(RcIn, zIn, solid);
     // inside, from the neck down
     for (let r = 0; r < rows; r++) {
@@ -310,6 +334,6 @@ const Litho = (() => {
     return bad === 0;
   }
 
-  return { SHAPES, imageArea, thickness, build, forPrint, bounds, toSTL, signedVolume, checkClosed };
+  return { SHAPES, imageArea, neckFillet, thickness, build, forPrint, bounds, toSTL, signedVolume, checkClosed };
 })();
 if (typeof module !== 'undefined') module.exports = Litho;
