@@ -11,7 +11,7 @@ The studio bundles two companion tools:
 
 1. **Shape**: pick a shape and its size (baubles get a rounded fillet where the sphere meets the neck, 3 mm by default, for a stronger join; flat and curved panels can add snap-off scaffold fins to brace them while printing), the thinnest and thickest walls, and the detail level. The 3D preview has a *Lit from inside* view and a *Daylight* view.
 2. **Image**: drop a photo in. The frame already matches your shape and size, and the page tells you the best photo size. Then drag and zoom it to frame it, and adjust brightness and contrast. The preview shows how the print will look when it's lit.
-   **Limit overhangs** (on by default) turns any sharp dark-over-light step, such as the edge of a photo in a wrap, into a 45° ramp so it prints without a ledge.
+   **Limit overhangs** (on by default) turns long sharp dark-over-light steps (5 mm or more side to side), such as the edge of a photo in a wrap, into 45° ramps so they print without a ledge. Short steps, such as fine detail, are left alone.
 3. **Print**: the studio builds the full-detail model, checks it, and gives you the STL and a print sheet for that shape.
 
 Settings are kept in your browser between visits.

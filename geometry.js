@@ -109,22 +109,54 @@ const Litho = (() => {
   // T: thickness grid (cols × rows, row 0 = top of the image). Returns { pos, idx, thick, size, notes }.
   // Overhang limiter: as printed, the wall may get thicker going up by at most OVERHANG_RISE mm per mm of height,
   // about 45°, so a hard dark-over-light edge prints as a ramp instead of a ledge. It only ever thickens the plastic
-  // under such an edge (like a support), so the thin side darkens a little there; nothing else changes.
+  // under such an edge (like a support). Only long ledges are ramped: a step that runs on for at least MIN_LEDGE mm
+  // side to side. Short ones, such as under an eyelash or a letter, print fine held up by the plastic round them,
+  // so fine detail is left exactly as it was.
   // Baubles print neck down, and row 0 is at the neck, so up the print is up the rows; the other shapes print
   // standing, with row 0 at the top, so up the print is down the rows.
-  const OVERHANG_RISE = 1;
+  const OVERHANG_RISE = 1, MIN_LEDGE = 5;
   function limitOverhang(shape, p, T0, cols, rows) {
-    const T = Float32Array.from(T0), rise = OVERHANG_RISE * imageArea(shape, p).V / Math.max(1, rows - 1);
-    if (shape === 'bauble') {
-      for (let r = rows - 2; r >= 0; r--) for (let c = 0; c < cols; c++) {
-        const i = r * cols + c, above = T[i + cols] - rise; if (T[i] < above) T[i] = above;
-      }
-    } else {
-      for (let r = 1; r < rows; r++) for (let c = 0; c < cols; c++) {
-        const i = r * cols + c, above = T[i - cols] - rise; if (T[i] < above) T[i] = above;
+    const a = imageArea(shape, p), rise = OVERHANG_RISE * a.V / Math.max(1, rows - 1);
+    const wrap = shape === 'bauble' || shape === 'cylinder', up = shape === 'bauble' ? 1 : -1;
+    const duAt = (r) => shape === 'bauble'                       // mm between columns along row r
+      ? 2 * Math.PI * (p.sphereD / 2) * Math.sin(a.psiEnd - (a.psiEnd - a.psi0) * r / Math.max(1, rows - 1)) / cols
+      : wrap ? a.U / cols : a.U / Math.max(1, cols - 1);
+    // 1. Find the long ledges in the photo as it is: cells that the row above them in the print overhangs.
+    const seed = new Uint8Array(cols * rows), m = new Uint8Array(cols);
+    for (let r = 0; r < rows; r++) {
+      const ra = r + up;
+      if (ra < 0 || ra >= rows) continue;
+      for (let c = 0; c < cols; c++) m[c] = T0[ra * cols + c] - T0[r * cols + c] > rise * 1.0001 ? 1 : 0;
+      markRuns(m, cols, wrap, Math.max(1, Math.ceil(MIN_LEDGE / Math.max(1e-6, duAt(r)))), seed, r * cols);
+    }
+    // 2. Ramp down from those ledges only, working from the top of the print towards the bed.
+    const T = Float32Array.from(T0), raised = new Uint8Array(cols * rows);
+    for (let n = 0; n < rows - 1; n++) {
+      const r = up === 1 ? rows - 2 - n : n + 1, ra = r + up;
+      for (let c = 0; c < cols; c++) {
+        const i = r * cols + c, ia = ra * cols + c;
+        if (!seed[i] && !raised[ia]) continue;
+        const want = T[ia] - rise;
+        if (T[i] < want) { T[i] = want; raised[i] = 1; }
       }
     }
     return T;
+  }
+  // Mark (in out, from off) every run of 1s in m that is at least `need` long. Round shapes wrap, so a run can
+  // cross from the last column to the first.
+  function markRuns(m, n, wrap, need, out, off) {
+    let start = 0;
+    if (wrap) {
+      start = m.indexOf(0);
+      if (start < 0) { if (n >= need) out.fill(1, off, off + n); return; }
+    }
+    let run = 0;
+    for (let k = 0; k <= n; k++) {
+      const c = (start + k) % n, on = k < n && m[c];
+      if (on) { run++; continue; }
+      if (run >= need) for (let j = 1; j <= run; j++) out[off + (start + k - j + n) % n] = 1;
+      run = 0;
+    }
   }
 
   function build(shape, p, T, cols, rows) {
@@ -355,6 +387,6 @@ const Litho = (() => {
     return bad === 0;
   }
 
-  return { SHAPES, imageArea, neckFillet, thickness, build, forPrint, bounds, toSTL, signedVolume, checkClosed };
+  return { SHAPES, imageArea, neckFillet, limitOverhang, thickness, build, forPrint, bounds, toSTL, signedVolume, checkClosed };
 })();
 if (typeof module !== 'undefined') module.exports = Litho;
