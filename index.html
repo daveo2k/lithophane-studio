@@ -27,8 +27,7 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--font-body); }
 a { color: var(--accent-text); }
-.wrap.page-top { padding-top: 20px; }
-.wrap { max-width: 1200px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-left)); }
+.wrap { max-width: 1312px; margin: 0 auto; padding: 0 max(16px, env(safe-area-inset-left)); }
 h1, h2, h3 { font-family: var(--font-display); font-weight: 500; margin: 0; }
 .hero { display: flex; flex-wrap: wrap; gap: 32px; align-items: center; padding-top: 48px; padding-bottom: 40px; }
 .hero > div { flex: 1 1 380px; display: flex; flex-direction: column; gap: 18px; }
@@ -64,7 +63,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
 </style>
 </head>
 <body>
-<header class="wrap page-top">
+<div class="site-bar">
   <div class="site-header">
     <a class="site-logo" href="./" aria-label="BadgerTech Lithophane Studio home">
       <img class="logo-light" src="brand/badgertech-lockup.svg" alt="BadgerTech" width="171" height="40">
@@ -76,7 +75,7 @@ footer .wrap { display: flex; flex-wrap: wrap; gap: 8px 24px; justify-content: s
       <a href="./cap/">End caps</a>
     </nav>
   </div>
-</header>
+</div>
 
 <main>
   <div class="wrap hero">

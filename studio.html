@@ -43,9 +43,7 @@ a { color: var(--accent-text); }
 button, input, select { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
-.page-top { max-width: 1400px; margin: 0 auto; padding: 16px max(16px, env(safe-area-inset-left)) 0; }
-.page-top .site-header { border-bottom: 0; padding-bottom: 14px; }
-.top { background: var(--panel); border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.top { background: var(--panel); border-bottom: 1px solid var(--line); }
 .top-in { max-width: 1400px; margin: 0 auto; padding: 10px max(16px, env(safe-area-inset-left)); display: flex; flex-wrap: wrap; align-items: center; gap: 10px 20px; }
 .proj { display: flex; flex-direction: column; min-width: 0; }
 .proj span { font: 11px var(--font-data); letter-spacing: .06em; text-transform: uppercase; color: var(--muted); }
@@ -128,7 +126,7 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
 </style>
 </head>
 <body>
-<div class="page-top">
+<div class="site-bar">
   <div class="site-header">
     <a class="site-logo" href="./" aria-label="BadgerTech Lithophane Studio home">
       <img class="logo-light" src="brand/badgertech-lockup.svg" alt="BadgerTech" width="171" height="40">

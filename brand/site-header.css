@@ -1,24 +1,30 @@
 /* The BadgerTech site header, shared by every page: the large lockup (links to the home page) on the left, the
    three tools on the right with the current one underlined. Self-contained, so each page only links this file
    and adds the markup; it follows the page's light or dark theme like the rest of the site. */
+/* The bar holding the header sits first in <body>, outside each page's own layout, so the header has the same
+   width, position and spacing on every page. Keeping the scrollbar's space reserved stops pages that scroll and
+   pages that don't from shifting sideways against each other. */
+html { scrollbar-gutter: stable; }
+.site-bar { padding: 20px max(16px, env(safe-area-inset-right, 0px)) 0 max(16px, env(safe-area-inset-left, 0px)); }
+.site-bar > .site-header { max-width: 1280px; margin: 0 auto; }
 .site-header {
   --sh-fg: #1b1e21; --sh-line: #d3d8db; --sh-accent: #b9741a;
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 24px;
   padding: 0 0 18px; margin: 0; border-bottom: 1px solid var(--sh-line);
-  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  font-family: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif; font-size: 15px; line-height: 24px;
 }
 .site-logo { display: inline-flex; border-radius: 6px; }
 .site-logo:focus-visible, .site-nav a:focus-visible { outline: 2px solid var(--sh-accent); outline-offset: 4px; }
 .site-logo img { display: block; height: 40px; width: auto; }
 .site-logo .logo-dark { display: none; }
 .site-nav { display: flex; flex-wrap: wrap; gap: 4px 22px; }
-.site-nav a { color: var(--sh-fg); text-decoration: none; font-weight: 500; font-size: 15px; padding: 4px 0; border-bottom: 2px solid transparent; }
+.site-nav a { color: var(--sh-fg); text-decoration: none; font-weight: 500; font-size: 15px; line-height: 24px; padding: 4px 0; border-bottom: 2px solid transparent; }
 .site-nav a:hover { color: var(--sh-accent); }
 .site-nav a[aria-current="page"] { border-bottom-color: var(--sh-accent); }
 @media (max-width: 520px) {
   .site-logo img { height: 32px; }
   .site-nav { gap: 4px 14px; }
-  .site-nav a { font-size: 14px; }
+  .site-nav a { font-size: 14px; line-height: 22px; }
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) .site-header { --sh-fg: #e8eaeb; --sh-line: #2d3236; --sh-accent: #f0b45a; }
