@@ -99,10 +99,19 @@ dl.stats dt { color: var(--muted); } dl.stats dd { margin: 0; }
 .seg2 { pointer-events: auto; display: flex; gap: 2px; background: var(--stage-chip); border-radius: 999px; padding: 3px; }
 .seg2 button { border: 0; border-radius: 999px; padding: 5px 12px; background: transparent; color: var(--stage-ink); font-size: 13px; cursor: pointer; }
 .seg2 button[aria-pressed="true"] { background: var(--glow); color: #1a1d20; }
-.parts { position: absolute; left: 12px; bottom: 12px; background: #1a1d20; color: var(--stage-ink); border-radius: 10px; padding: 8px 12px; font: 12px var(--font-data); }
+.chip.detail { gap: 8px; padding: 3px 4px 3px 12px; cursor: default; }
+.chip.detail span { color: #9aa3a9; font-size: 12px; }
+.chip.detail select { appearance: none; -webkit-appearance: none; border: 0; border-radius: 999px; padding: 4px 26px 4px 10px; font: 500 13px var(--font-body); color: var(--stage-ink); cursor: pointer;
+  background: rgba(255, 255, 255, .12) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23e8eaeb' stroke-width='1.5' fill='none'/%3E%3C/svg%3E") no-repeat right 9px center; }
+.chip.detail select:focus-visible { outline: 2px solid var(--glow); outline-offset: 2px; }
+.chip.detail option { color: #1b1e21; background: #fff; }
+@media (max-width: 520px) { .chip.detail span { display: none; } }
+.sfoot { position: absolute; left: 12px; right: 12px; bottom: 12px; display: flex; flex-wrap: wrap-reverse; align-items: flex-end; justify-content: space-between; gap: 8px; pointer-events: none; }
+.sfoot > * { pointer-events: auto; }
+.parts { background: #1a1d20; color: var(--stage-ink); border-radius: 10px; padding: 8px 12px; font: 12px var(--font-data); }
 .parts td, .parts th { padding: 2px 14px 2px 0; text-align: left; font-weight: 400; }
 .parts th { color: #9aa3a9; }
-.sbar { position: absolute; right: 12px; bottom: 12px; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
+.sbar { margin-left: auto; display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
 .sbar .chip input { width: 110px; accent-color: var(--glow); }
 .sbar small { font: 12px var(--font-data); color: #9aa3a9; }
 .busy { position: absolute; inset: 0; display: grid; place-items: center; color: #9aa3a9; font-size: 13px; pointer-events: none; }
@@ -203,9 +212,8 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
       </label>
       <fieldset>
         <legend>Detail</legend>
-        <select id="res" class="full" aria-label="Detail"><option value="0.2">Finest, 0.2 mm</option><option value="0.25">Fine, 0.25 mm</option><option value="0.3" selected>Good, 0.3 mm</option><option value="0.4">Quick, 0.4 mm</option><option value="0.5">Draft, 0.5 mm</option></select>
         <dl class="stats"><dt>Best photo size</dt><dd id="est-best">–</dd><dt>Image size used</dt><dd id="est-px">–</dd><dt>Triangles</dt><dd id="est-tris">–</dd><dt>STL file</dt><dd id="est-mb">–</dd></dl>
-        <p class="hint">0.3 mm suits a 0.4 mm nozzle; Finest suits a 0.2 mm nozzle. The preview uses a lighter version; the download uses this detail.</p>
+        <p class="hint">Choose the detail at the top of the 3D preview. 0.3 mm suits a 0.4 mm nozzle; Finest suits a 0.2 mm nozzle. The preview uses a lighter version; the download uses this detail.</p>
       </fieldset>
       <fieldset data-for="bauble">
         <legend>Bauble size</legend>
@@ -257,12 +265,15 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
         <div class="busy" id="busy">Building the preview…</div>
         <div class="chips">
           <div class="seg2" role="group" aria-label="Lighting"><button type="button" id="lit" aria-pressed="true">Lit from inside</button><button type="button" id="day" aria-pressed="false">Daylight</button></div>
-          <button type="button" class="chip" id="reset" style="margin-left:auto">Reset view</button>
+          <label class="chip detail" style="margin-left:auto"><span>Detail</span><select id="res"><option value="0.2">Finest, 0.2 mm</option><option value="0.25">Fine, 0.25 mm</option><option value="0.3" selected>Good, 0.3 mm</option><option value="0.4">Quick, 0.4 mm</option><option value="0.5">Draft, 0.5 mm</option></select></label>
+          <button type="button" class="chip" id="reset">Reset view</button>
         </div>
+        <div class="sfoot">
         <table class="parts" aria-label="Part size"><thead><tr><th scope="col">Part</th><th scope="col">Size, mm</th></tr></thead><tbody><tr><td id="part-name">Lithophane</td><td id="part-size">–</td></tr></tbody></table>
         <div class="sbar">
           <label class="chip">Light <input id="light" type="range" min="20" max="160" value="80"></label>
           <small id="build-status">–</small>
+        </div>
         </div>
       </section>
     </div>
