@@ -201,6 +201,12 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
           <option value="cylinder">Cylinder</option>
         </select>
       </label>
+      <fieldset>
+        <legend>Detail</legend>
+        <select id="res" class="full" aria-label="Detail"><option value="0.2">Finest, 0.2 mm</option><option value="0.25">Fine, 0.25 mm</option><option value="0.3" selected>Good, 0.3 mm</option><option value="0.4">Quick, 0.4 mm</option><option value="0.5">Draft, 0.5 mm</option></select>
+        <dl class="stats"><dt>Best photo size</dt><dd id="est-best">–</dd><dt>Image size used</dt><dd id="est-px">–</dd><dt>Triangles</dt><dd id="est-tris">–</dd><dt>STL file</dt><dd id="est-mb">–</dd></dl>
+        <p class="hint">0.3 mm suits a 0.4 mm nozzle; Finest suits a 0.2 mm nozzle. The preview uses a lighter version; the download uses this detail.</p>
+      </fieldset>
       <fieldset data-for="bauble">
         <legend>Bauble size</legend>
         <div class="row"><label for="sphereD">Sphere diameter</label><div class="field"><input id="sphereD" type="number" step="1" min="40" value="100"><span>mm</span></div></div>
@@ -242,12 +248,6 @@ table.sheet td { font-family: var(--font-data); padding: 7px 0; border-bottom: 1
         <p class="hint">Natural spreads the tones the way light fades through white PLA, so mid-greys don't all look dark.</p>
         <label class="check"><input id="overhang" type="checkbox"> Limit overhangs</label>
         <p class="hint">Where a dark area sits right above a light one as it prints, the wall steps out and leaves a ledge, for example at the edge of a photo in a wrap. This turns long steps, 5 mm or more side to side, into 45° ramps. Short ones, such as under an eyelash or a letter, print fine and are left alone, so fine detail doesn't change.</p>
-      </fieldset>
-      <fieldset>
-        <legend>Detail</legend>
-        <div class="row"><label for="res">Detail</label><div class="field"><select id="res"><option value="0.2">Finest, 0.2 mm</option><option value="0.25">Fine, 0.25 mm</option><option value="0.3" selected>Good, 0.3 mm</option><option value="0.4">Quick, 0.4 mm</option><option value="0.5">Draft, 0.5 mm</option></select></div></div>
-        <dl class="stats"><dt>Best photo size</dt><dd id="est-best">–</dd><dt>Image size used</dt><dd id="est-px">–</dd><dt>Triangles</dt><dd id="est-tris">–</dd><dt>STL file</dt><dd id="est-mb">–</dd></dl>
-        <p class="hint">0.3 mm suits a 0.4 mm nozzle. The preview uses a lighter version; the download uses this detail.</p>
       </fieldset>
       <div id="shape-warn"></div>
     </aside>
